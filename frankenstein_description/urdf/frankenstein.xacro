@@ -1,0 +1,463 @@
+<?xml version="1.0"?>
+<robot name="frankenstein"  xmlns:xacro="https://www.ros.org/wiki/xacro"> 
+
+  <!-- <xacro:property name="pi" value="3.141592653589793"/> -->
+  <xacro:include filename="$(find frankenstein_description)/urdf/materials.xacro"/>
+  <xacro:include filename="$(find frankenstein_description)/urdf/frankenstein.gazebo"/>
+
+
+
+
+    <link name="robot_frame"/>
+  
+    <link name="base_link">
+        <selfCollide>false</selfCollide>
+        <collision name="collision">
+            <geometry>
+            <cylinder length="0.5" radius="0.002"/>
+            </geometry>
+        </collision>
+        <visual>
+            <geometry>
+            <cylinder length="0.5" radius="0.002"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.1"/>
+            <inertia ixx="0.002083" ixy="0.0" ixz="0.0"
+                    iyy="0.002083" iyz="0.0"
+                    izz="2e-7"/>
+        </inertial>
+    </link>
+
+
+    <joint name="base_to_robot_frame" type="fixed">
+        <parent link="robot_frame"/>
+        <child link="base_link"/>
+        <origin xyz="0 0 0" rpy="-${pi/2} 0 ${pi}"/>
+    </joint>
+
+
+
+    <link name="leg1">
+        <selfCollide>false</selfCollide>
+        <collision name="collision">
+            <geometry>
+            <box size="0.909 0.192 0.03"/>
+            </geometry>
+        </collision>
+        <visual>
+            <geometry>
+            <box size="0.909 0.192 0.03"/>
+            </geometry>
+            <material name="grey"/>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.14"/>
+            <inertia ixx="0.000441" ixy="0.0" ixz="0.0"
+                    iyy="0.00965" iyz="0.0"
+                    izz="0.01007"/>
+        </inertial>
+
+
+
+    </link>
+
+    <joint name="leg1_baselink" type="fixed">
+        <parent link="base_link"/>
+        <child link="leg1"/>
+        <origin xyz="-0.2545 0 -0.187" rpy="${pi/2} 0 0"/> 
+        
+    </joint>
+
+    <link name="leg2">
+        <selfCollide>false</selfCollide>
+        <collision name="collision">
+            <geometry>
+            <box size="0.909 0.192 0.03"/>
+            </geometry>
+        </collision>
+        <visual>
+            <geometry>
+            <box size="0.909 0.192 0.03"/>
+            </geometry>
+            <material name="grey"/>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.14"/>
+            <inertia ixx="0.000441" ixy="0.0" ixz="0.0"
+                    iyy="0.00965" iyz="0.0"
+                    izz="0.01007"/>
+        </inertial>
+
+
+    </link>
+
+    <joint name="leg2_baselink" type="fixed">
+    <parent link="base_link"/> 
+    <child link="leg2"/>
+    <origin xyz="-0.2545 0 0.187" rpy="${pi/2} 0 0"/> 
+    </joint>
+
+    <link name="chassis">
+        <selfCollide>false</selfCollide>
+        <collision name="collision">
+            <geometry>
+            <box size="0.806 0.742 0.831995"/>
+            </geometry>
+        </collision>
+        <visual>
+            <geometry>
+            <box size="0.806 0.742 0.831995"/>
+            </geometry>
+            <material name="green"/>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="1.5" />
+            <inertia ixx="0.155" ixy="0.0" ixz="0.0"
+                    iyy="0.168" iyz="0.0"
+                    izz="0.150"/>
+        </inertial>
+
+
+    </link>
+
+    <joint name="leg1_to_chassis" type="fixed">
+        <parent link="leg1"/> 
+        <child link="chassis"/>
+        <origin xyz="-0.8575 0.187 0.4009975" rpy="0 0 0"/>
+    </joint>
+
+
+    <link name="left_free_steering_column">
+        <selfCollide>false</selfCollide>
+        <collision name="collision">
+            <geometry>
+            <cylinder radius="0.02" length="0.2"/>
+            </geometry>
+        </collision>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+            <cylinder radius="0.02" length="0.2"/>
+            </geometry>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="1.0"/>
+            <inertia ixx="0.020858" ixy="0.0" ixz="0.0"
+                    iyy="0.020858" iyz="0.0"
+                    izz="0.00005" />
+        </inertial>
+    </link>
+
+
+    <joint name="left_free_steering_joint" type="continuous">
+        <parent link="chassis"/>
+        <child link="left_free_steering_column"/>
+        <origin xyz="-0.388 -0.2 -0.3759975" rpy="${pi/2} 0 0"/>
+        <axis xyz="0 1 0"/>
+    </joint>
+
+
+    
+    <link name="left_free_wheel">
+        <selfCollide>false</selfCollide>
+        <collision name="collision">  
+            <geometry>
+            <cylinder radius="0.1" length="0.05"/>
+            </geometry>
+        </collision>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+            <cylinder radius="0.1" length="0.05"/>
+            </geometry>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="2.8498940e-01" />
+            <inertia ixx="0.000734" ixy="0.0" ixz="0.0"
+                     iyy="0.000734" iyz="0.0"
+                     izz="0.001425"/>
+        </inertial>
+    </link>
+
+    <joint name="left_free_joint" type="continuous">
+        <parent link="left_free_steering_column"/>
+        <child link="left_free_wheel"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <axis xyz="0 0 1"/>
+    </joint>
+
+
+
+    <link name="rod">
+        <selfCollide>false</selfCollide>
+        <collision name="collision">
+            <geometry>
+            <box size="0.145 0.742 1.383136"/>
+            </geometry>
+        </collision>
+        <visual>
+            <geometry>
+            <box size="0.145 0.742 1.383136"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.4" />
+            <inertia ixx="0.054747" ixy="0.0" ixz="0.0"
+                    iyy="0.042980" iyz="0.0"
+                    izz="0.012702" />
+        </inertial>
+    </link>
+
+    <joint name="rod_to_chassis" type="fixed">
+        <parent link="chassis"/>
+        <child link="rod"/>
+        <origin xyz="0.3305 0 1.1075655" rpy="0 0 0"/>
+    </joint>
+
+    <link name="slider">
+        <selfCollide>false</selfCollide>
+        <collision name="collision">
+            <geometry>
+            <box size="0.0856 0.742 0.06"/>
+            </geometry>
+        </collision>
+        <visual>
+            <geometry>
+            <box size="0.0856 0.742 0.06"/>
+            </geometry>
+            <material name="grey"/>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.1" />
+            <inertia ixx="0.003079" ixy="0.0" ixz="0.0"
+                    iyy="0.000061" iyz="0.0"
+                    izz="0.003099" />
+        </inertial>
+    </link>
+
+    <joint name="slider_to_chassis" type="fixed">
+        <parent link="chassis"/>
+        <child link="slider"/>
+        <origin xyz="0.4458 0 0.4159975" rpy="0 0 0"/>
+    </joint>
+
+
+    <link name="holder1">
+        <selfCollide>false</selfCollide>
+        <collision name="collision">
+            <geometry>
+            <box size="1.160349 0.192 0.03"/>
+            </geometry>
+        </collision>
+        <visual>
+            <geometry>
+            <box size="1.160349 0.192 0.03"/>
+            </geometry>
+            <material name="grey"/>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.05"/>
+            <inertia ixx="0.00015735" ixy="0.0" ixz="0.0"
+                    iyy="0.005614" iyz="0.0"
+                    izz="0.005764"/>
+        </inertial>
+    </link>
+
+    <joint name="holder1_to_slider" type="fixed">
+        <parent link="slider"/>
+        <child link="holder1"/>
+        <origin xyz="0.5801745 -0.187 0" rpy="0 0 0"/>
+    </joint>
+
+
+    <link name="holder2">
+        <selfCollide>false</selfCollide>
+        <collision name="collision">
+            <geometry>
+            <box size="1.160349 0.192 0.03"/>
+            </geometry>
+        </collision>
+        <visual>
+            <geometry>
+            <box size="1.160349 0.192 0.03"/>
+            </geometry>
+            <material name="grey"/>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.05"/>
+            <inertia ixx="0.00015735" ixy="0.0" ixz="0.0"
+                    iyy="0.005614" iyz="0.0"
+                    izz="0.005764"/>
+        </inertial>
+    </link>
+
+    <joint name="holder2_to_slider" type="fixed">
+        <parent link="slider"/>
+        <child link="holder2"/>
+        <origin xyz="0.5801745 0.187 0" rpy="0 0 0"/>
+    </joint>
+
+
+    <link name="front_right_steering_column">
+        <selfCollide>false</selfCollide>
+        <collision name="collision">
+            <geometry>
+            <cylinder radius="0.02" length="0.2"/>
+            </geometry>
+        </collision>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+            <cylinder radius="0.02" length="0.2"/>
+            </geometry>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="1.0"/>
+            <inertia ixx="0.020858" ixy="0.0" ixz="0.0"
+                    iyy="0.020858" iyz="0.0"
+                    izz="0.00005" />
+        </inertial>
+    </link>
+
+
+    <joint name="front_right_steering_joint" type="revolute">
+        <parent link="chassis"/>
+        <child link="front_right_steering_column"/>
+        <origin xyz="-0.388 0.2 -0.3759975" rpy="${pi/2} 0 0"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="-${pi/4}" upper="${pi/4}" effort="100" velocity="10"/>
+    </joint>
+
+
+
+    <link name="front_right_wheel">
+        <selfCollide>false</selfCollide>
+        <collision name="collision">  
+            <geometry>
+            <cylinder radius="0.1" length="0.05"/>
+            </geometry>
+        </collision>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+            <cylinder radius="0.1" length="0.05"/>
+            </geometry>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="2.8498940e-01" />
+            <inertia ixx="0.000734" ixy="0.0" ixz="0.0"
+                     iyy="0.000734" iyz="0.0"
+                     izz="0.001425"/>
+        </inertial>
+    </link>
+
+    <joint name="front_right_wheel_joint" type="continuous">
+        <parent link="front_right_steering_column"/>
+        <child link="front_right_wheel"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <axis xyz="0 0 1"/>
+    </joint>
+
+    <link name="back_right_wheel">
+        <selfCollide>false</selfCollide>
+        <collision name="collision">
+            <geometry>
+            <cylinder radius="0.06" length="0.03"/>
+            </geometry>
+        </collision>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+            <cylinder radius="0.06" length="0.03"/>
+            </geometry>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.05"/>
+            <inertia ixx="4.875e-05" ixy="0.0" ixz="0.0"
+                    iyy="4.875e-05" iyz="0.0"
+                    izz="9e-05"/>
+        </inertial>
+    </link>
+
+    <joint name="back_right_wheel_roll_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="back_right_wheel"/>
+        <origin xyz="0 0 0.2" rpy="0 0 ${pi/2}"/>
+        <axis xyz="0 0 1"/>
+    </joint>
+
+    <link name="back_left_wheel">
+        <selfCollide>false</selfCollide>
+        <collision name="collision">
+            <geometry>
+            <cylinder radius="0.06" length="0.03"/>
+            </geometry>
+        </collision>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+            <cylinder radius="0.06" length="0.03"/>
+            </geometry>
+        </visual>
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.05"/>
+            <inertia ixx="4.875e-05" ixy="0.0" ixz="0.0"
+                    iyy="4.875e-05" iyz="0.0"
+                    izz="9e-05"/>
+        </inertial>
+    </link>
+
+    <joint name="back_left_wheel_roll_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="back_left_wheel"/>
+        <origin xyz="0 0 -0.2" rpy="0 0 ${pi/2}"/>
+        <axis xyz="0 0 1"/>
+    </joint>
+
+    <link name="lidar_link">
+        <selfCollide>false</selfCollide>
+        <collision name="collision">
+        <geometry>
+            <box size="0.1 0.1 0.135"/>
+        </geometry>
+        </collision>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <mesh filename="package://frankenstein_description/meshes/sick_s300.dae"/>
+            </geometry>
+        </visual> 
+        <inertial>
+            <origin xyz="0 0 0" />
+            <mass value="0.2" />
+            <inertia ixx="0.000470" ixy="0.0" ixz="0.0"
+                    iyy="0.000470" iyz="0.0"
+                    izz="0.000333" />
+        </inertial>
+    </link>
+
+    <joint name="lidar_to_rod" type="fixed">
+        <parent link="rod"/>
+        <child link="lidar_link"/>
+        <origin xyz="0 0 0.695068" rpy="0 0 ${pi}"/>
+    </joint>
+
+</robot>

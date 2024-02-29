@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<package>
+  <name>gazebo_3wheel_plugin</name>
+  <version>0.0.0</version>
+  <description>The gazebo_3wheel_plugin package</description>
+
+
+  <maintainer email="aminedhemaied@todo.todo">aminedhemaied</maintainer>
+
+  <license>TODO</license>
+
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>gazebo</build_depend>
+  <build_depend>gazebo_msgs</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>tf</build_depend>
+  <build_depend>tf2_ros</build_depend> 
+  <build_depend>gazebo_ros</build_depend>
+  <run_depend>gazebo_ros</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>nav_msgs</run_depend>
+  <run_depend>tf</run_depend>
+  <run_depend>tf2_ros</run_depend> 
+  <run_depend>gazebo</run_depend>
+  <run_depend>gazebo_ros</run_depend>
+  <run_depend>gazebo_msgs</run_depend>
+
+  <export>
+    <gazebo_ros plugin_path="${prefix}/lib" gazebo_media_path="${prefix}"/>
+  </export>
+</package>
