@@ -234,9 +234,7 @@ private:
             this->previous = now;
         }
         
-    }
-    
-    
+    }  
 };
 
 GZ_REGISTER_MODEL_PLUGIN(GazeboRos3WheelDrive)

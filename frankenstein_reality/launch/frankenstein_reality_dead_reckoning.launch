@@ -1,0 +1,25 @@
+<!-- <?xml version="1.0"?> -->
+
+<launch>
+  
+  <param name="robot_description" command="$(find xacro)/xacro $(find frankenstein_description)/urdf/frankenstein.urdf"/>
+
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+
+  <node pkg="frankenstein_reality" type="data_parser2" name="data_parser2" />
+  
+  <node pkg="tf2_ros" type="static_transform_publisher" name="world_to_odom_broadcaster"
+      args="-17544.01171875 -47337.421875 0 0 0 0 1 world odom" />
+
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+    </node>
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find frankenstein_description)/rviz/frankenstein_reality.rviz">
+    </node>
+
+  
+  <node pkg="frankenstein_reality" type="odometry_node_reality_dr" name="robot_model" />
+  <node pkg="frankenstein_reality" type="visualizer_node_reality" name="path_visualizer" />
+
+
+
+</launch>

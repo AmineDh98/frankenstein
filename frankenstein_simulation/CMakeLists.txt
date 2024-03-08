@@ -131,6 +131,9 @@ include_directories(
 
 add_executable(odometry_node src/odometry.cpp)
 target_link_libraries(odometry_node ${catkin_LIBRARIES})
+
+add_executable(visualizer_node src/visualizer.cpp)
+target_link_libraries(visualizer_node ${catkin_LIBRARIES})
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/frankenstein_simulation.cpp
