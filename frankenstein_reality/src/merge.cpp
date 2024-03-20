@@ -120,15 +120,6 @@ public:
                 ROS_INFO_STREAM("Value[" << i << "]: " << tokens[i]);
             }
 
-            // Parsing joint state information
-            sensor_msgs::JointState joint_state_msg;
-            joint_state_msg.header.stamp = ros::Time::now();
-            joint_state_msg.name.push_back("front_right_wheel_joint");
-            joint_state_msg.position.push_back(std::isnan(tokens[3]) ? 0.0 : tokens[3]);
-            // joint_state_msg.velocity.push_back(std::isnan(tokens[0]) ? 0.0 : tokens[0]);
-            joint_state_msg.name.push_back("front_right_steering_joint");
-            joint_state_msg.position.push_back(std::isnan(tokens[2]) ? 0.0 : tokens[2]);
-
             if (counter==0){
                 gt_x = tokens[6]/1000;
                 gt_y=tokens[7]/1000;
@@ -136,18 +127,38 @@ public:
                 counter = 1;
             }
 
+            double steerPose=tokens[2];
+            double spinPose=tokens[3];
+            double gtxPose=tokens[6]/1000;
+            double gtyPose=tokens[7]/1000;
+            double gtthetaPose=tokens[8]*(M_PI / 180.0);
+
+
+            // Parsing joint state information
+            sensor_msgs::JointState joint_state_msg;
+            joint_state_msg.header.stamp = ros::Time::now();
+            joint_state_msg.name.push_back("front_right_wheel_joint");
+            joint_state_msg.position.push_back(std::isnan(spinPose) ? 0.0 : spinPose);
+            
+            joint_state_msg.name.push_back("front_right_steering_joint");
+            joint_state_msg.position.push_back(std::isnan(steerPose) ? 0.0 : steerPose);
+
+
+            
+
 
             double cosTheta = cos(-gt_theta);
             double sinTheta = sin(-gt_theta);
-            double transformed_x = cosTheta * (tokens[6]/1000-gt_x) - sinTheta * (tokens[7]/1000-gt_y);
-            double transformed_y = sinTheta * (tokens[6]/1000-gt_x) + cosTheta * (tokens[7]/1000-gt_y);
-            double transformed_theta = tokens[8]*(M_PI / 180.0)-gt_theta;
+            double transformed_x = cosTheta * (gtxPose-gt_x) - sinTheta * (gtyPose-gt_y);
+            double transformed_y = sinTheta * (gtxPose-gt_x) + cosTheta * (gtyPose-gt_y);
+            double transformed_theta = gtthetaPose-gt_theta;
 
             
 
             transformed_theta = fmod(transformed_theta, 2*M_PI);
             if(transformed_theta>M_PI) transformed_theta-=2*M_PI;
             else if (transformed_theta<-M_PI) transformed_theta+=2*M_PI;
+            
             // Parsing odometry information
             nav_msgs::Odometry odom_msg;
             odom_msg.header.stamp = ros::Time::now();

@@ -1,0 +1,16 @@
+<!-- <?xml version="1.0"?> -->
+
+<launch>
+  <arg name="bag_file" default="${HOME}/bagfiles/map2.bag" />
+  <!-- <node pkg="tf2_ros" type="static_transform_publisher" name="world_to_odom_broadcaster"
+      args="0 0 0 0 0 0 1 world odom" /> -->
+  <param name="robot_description" command="$(find xacro)/xacro $(find frankenstein_description)/urdf/frankenstein.urdf"/>
+  <node pkg="frankenstein_reality" type="visualizer_node_reality" name="path_visualizer" />
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find frankenstein_description)/rviz/frankenstein_reality.rviz">
+    </node>
+  
+  <node name="cartographer_bag_launcher" pkg="frankenstein_reality" type="cartographer_bag_launcher.sh" args="$(arg bag_file)" output="screen"/>
+  
+
+</launch>
+

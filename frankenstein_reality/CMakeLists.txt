@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(frankenstein_reality)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-add_compile_options(-std=c++11)
+add_compile_options(-std=c++14)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -16,6 +16,10 @@ find_package(catkin REQUIRED COMPONENTS
   tf2
   tf2_ros
   tf2_geometry_msgs
+  pcl_ros
+  pcl_conversions
+  laser_geometry
+
 )
 
 find_package(Boost REQUIRED COMPONENTS system)
@@ -24,7 +28,7 @@ find_package(Boost REQUIRED COMPONENTS system)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES robot_data_publisher
-  CATKIN_DEPENDS roscpp sensor_msgs nav_msgs tf2 tf2_ros tf2_geometry_msgs
+  CATKIN_DEPENDS roscpp sensor_msgs nav_msgs tf2 tf2_ros tf2_geometry_msgs pcl_ros pcl_conversions laser_geometry
   DEPENDS Boost
 )
 
@@ -67,3 +71,6 @@ target_link_libraries(odometry_node_reality ${catkin_LIBRARIES})
 
 add_executable(visualizer_node_reality src/visualizer_reality.cpp)
 target_link_libraries(visualizer_node_reality ${catkin_LIBRARIES})
+
+add_executable(scan_filter_node src/scan_filter.cpp)
+target_link_libraries(scan_filter_node ${catkin_LIBRARIES})

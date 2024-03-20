@@ -10,19 +10,20 @@
 #include <sensor_msgs/LaserScan.h>
 #include <boost/bind.hpp>
 #include <array>
+#include <visualization_msgs/Marker.h>
 
 
 
 class RobotModel {
 private:
-    double var_x = 0.1;
-    double var_y = 0.1;
-    double var_theta = 0.1;
+    double var_v = 0.000001;
+    double var_steer = 0.000001;
+    std::array<std::array<double, 3>, 3> P = {{{0}}};
 
-    std::array<std::array<double, 3>, 3> Pk = {{
-        {var_x, 0, 0},  // Covariance in x
-        {0, var_y, 0},  // Covariance in y
-        {0, 0, var_theta}  // Covariance in theta
+    // Process noise covariance matrix (Q)
+    std::array<std::array<double, 2>, 2> Q = {{
+        {var_v, 0},
+        {0, var_steer}
     }};
     double x = 0.0, y = 0.0, alpha = 0.0; // Position and orientation
     double L = 1.5; // Wheelbase
@@ -34,6 +35,7 @@ private:
     sensor_msgs::LaserScan modified_msg;
     ros::Time last_update_time_;
     ros::Publisher odom_pub;
+    ros::Publisher marker_pub;
     ros::Subscriber joint_states_sub;
 
     tf2_ros::TransformBroadcaster br;
@@ -43,35 +45,110 @@ private:
         
         double dt = (current_time - last_update_time_).toSec();
         if (dt>0){
-            double R = (L / tan(theta)) + f;
-            double omega = v / R;
-            
-            double deltaAlpha = omega * dt;
-            alpha += deltaAlpha;
-            
-            alpha = atan2(sin(alpha), cos(alpha));
-            
-            double deltaX;
-            double deltaY;
+            double omega = (v*sin(theta)) / L;
+            double Vtcp = v*cos(theta) - (omega * f);
 
-
-            if (fabs(theta) == 0) { // Check for straight movement
-                deltaX = v * cos(alpha) * dt;
-                deltaY = v * sin(alpha) * dt;
-            } else { // For turning, adjust calculations to reflect arc movement
-                deltaX = R * sin(alpha + deltaAlpha) - R * sin(alpha);
-                deltaY = -R * cos(alpha + deltaAlpha) + R * cos(alpha);
-            }
+            alpha += omega*dt;
+            double IncDist = Vtcp * dt ;
+            double deltaX = IncDist*cos(alpha);
+            double deltaY = IncDist*sin(alpha);
 
             vx = deltaX/dt;
             vy = deltaY/dt;
 
             x += deltaX;
             y += deltaY;
+
+            // Approximate Jacobian of motion model w.r.t. state variables (F_x)
+            std::array<std::array<double, 3>, 3> F_x = {{
+                {1, 0, -deltaY},
+                {0, 1, deltaX},
+                {0, 0, 1}
+            }};
+
+            // Approximate Jacobian of motion model w.r.t. control inputs (F_u)
+            // Note: These are simplified and should be derived based on your specific model
+            std::array<std::array<double, 2>, 3> F_u = {{
+                {cos(alpha) * dt, -IncDist * sin(alpha)},
+                {sin(alpha) * dt, IncDist * cos(alpha)},
+                {0, dt / L}
+            }};
+
+            
+
+            // Update the covariance matrix P
+            std::array<std::array<double, 3>, 3> tempP = P; // Copy of the original P for calculations
+
+            // First term: F_x * P * F_x^T
+            for (int i = 0; i < 3; ++i) {
+                for (int j = 0; j < 3; ++j) {
+                    P[i][j] = 0;
+                    for (int k = 0; k < 3; ++k) {
+                        for (int l = 0; l < 3; ++l) {
+                            P[i][j] += F_x[i][k] * tempP[k][l] * F_x[j][l];
+                        }
+                    }
+                }
+            }
+
+            // Second term: F_u * Q * F_u^T
+            std::array<std::array<double, 3>, 3> FuQT = {{{0}}};
+            for (int i = 0; i < 3; ++i) {
+                for (int j = 0; j < 3; ++j) {
+                    for (int k = 0; k < 2; ++k) {
+                        FuQT[i][j] += F_u[i][k] * Q[k][k] * F_u[j][k]; 
+                    }
+                    P[i][j] += FuQT[i][j]; 
+                }
+            }
         
             publishOdometry(x, y, alpha, v, omega, current_time);
+            publishEllipse(x, y, P, current_time);
             last_update_time_ = current_time;
         }
+    }
+
+    void publishEllipse(double x, double y, const std::array<std::array<double, 3>, 3>& P, ros::Time current_time) {
+        visualization_msgs::Marker ellipse;
+        ellipse.header.frame_id = "odom";
+        ellipse.header.stamp = current_time;
+        ellipse.ns = "odom";
+        ellipse.id = 0;
+        ellipse.type = visualization_msgs::Marker::CYLINDER;
+        ellipse.action = visualization_msgs::Marker::ADD;
+
+        ellipse.pose.position.x = x;
+        ellipse.pose.position.y = y;
+        ellipse.pose.position.z = 0;
+
+        // Calculate ellipse orientation and scale based on covariance matrix P
+        double sxx = P[0][0];
+        double syy = P[1][1];
+        double sxy = P[0][1];
+
+        // Eigenvalues of the covariance matrix represent the squared length of the ellipse axes
+        double a = sxx + syy;
+        double b = sqrt((sxx - syy) * (sxx - syy) + 4 * sxy * sxy);
+        double lambda1 = (a + b) / 2; // Major axis variance
+        double lambda2 = (a - b) / 2; // Minor axis variance
+
+        ellipse.scale.x = sqrt(lambda1) * 2; // Convert variance to standard deviation and double for diameter
+        ellipse.scale.y = sqrt(lambda2) * 2; // Convert variance to standard deviation and double for diameter
+        ellipse.scale.z = 0.01; // Thin cylinder to represent an ellipse on the ground plane
+
+        // Orientation of the ellipse (derived from the eigenvectors)
+        double angle = 0.5 * atan2(2 * sxy, sxx - syy);
+        tf2::Quaternion q_ellipse;
+        q_ellipse.setRPY(0, 0, angle);
+        ellipse.pose.orientation = tf2::toMsg(q_ellipse);
+
+        ellipse.color.a = 0.3; // Transparency
+        ellipse.color.r = 0.0;
+        ellipse.color.g = 1.0;
+        ellipse.color.b = 0.0;
+
+        // Publish the ellipse marker
+        marker_pub.publish(ellipse);
     }
 
     void publishOdometry(double x, double y, double alpha, double v, double omega, ros::Time current_time) {
@@ -90,12 +167,12 @@ private:
         odom_msg.twist.twist.linear.x = vx;
         odom_msg.twist.twist.linear.y = vy;
         odom_msg.twist.twist.angular.z = omega;
-        odom_msg.pose.covariance = {Pk[0][0], Pk[0][1], 0, 0, 0, Pk[0][2],
-                            Pk[1][0], Pk[1][1], 0, 0, 0, Pk[1][2],
+        odom_msg.pose.covariance = {P[0][0], P[0][1], 0, 0, 0, P[0][2],
+                            P[1][0], P[1][1], 0, 0, 0, P[1][2],
                             0, 0, 0, 0, 0, 0,
                             0, 0, 0, 0, 0, 0,
                             0, 0, 0, 0, 0, 0,
-                            Pk[2][0], Pk[2][1], 0, 0, 0, Pk[2][2]};
+                            P[2][0], P[2][1], 0, 0, 0, P[2][2]};
         odom_pub.publish(odom_msg);
         
         // transformStamped.header.stamp = current_time;
@@ -115,7 +192,7 @@ public:
     RobotModel(ros::NodeHandle& nh) : last_update_time_(ros::Time::now()) {
         odom_pub = nh.advertise<nav_msgs::Odometry>("/odom", 1000);
         joint_states_sub = nh.subscribe<sensor_msgs::JointState>("/frankenstein/joint_states", 1000, &RobotModel::jointStatesCallback, this);
-        
+        marker_pub = nh.advertise<visualization_msgs::Marker>("elipse_odometry", 1000);
         
     }
 

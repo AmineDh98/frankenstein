@@ -2,7 +2,7 @@
 
 <launch>
 
-  <arg name="map_file" default="${HOME}/bagfiles/map1/map1.pbstream" />
+  <arg name="map_file" default="${HOME}/bagfiles/map5/map5.pbstream" />
   
   <param name="robot_description" command="$(find xacro)/xacro $(find frankenstein_description)/urdf/frankenstein.urdf"/>
 

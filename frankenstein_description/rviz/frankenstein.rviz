@@ -7,6 +7,7 @@ Panels:
         - /Global Options1
         - /Status1
         - /Odometry1/Shape1
+        - /Odometry2
         - /Odometry2/Shape1
         - /MarkerArray1
       Splitter Ratio: 0.5
@@ -218,8 +219,8 @@ Visualization Manager:
           Scale: 1
           Value: true
         Value: true
-      Enabled: false
-      Keep: 100
+      Enabled: true
+      Keep: 1
       Name: Odometry
       Position Tolerance: 0.10000000149011612
       Queue Size: 10
@@ -235,7 +236,7 @@ Visualization Manager:
         Value: Arrow
       Topic: /odom
       Unreliable: false
-      Value: false
+      Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -410,7 +411,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 88.45459747314453
+      Distance: 31.2166690826416
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -418,17 +419,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: -4.2681989669799805
-        Y: 4.71452522277832
-        Z: -14.836119651794434
+        X: 4.333233833312988
+        Y: -0.2852734923362732
+        Z: -4.751217842102051
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.6703971028327942
+      Pitch: 1.0453969240188599
       Target Frame: <Fixed Frame>
-      Yaw: 6.118098258972168
+      Yaw: 4.853097438812256
     Saved: ~
 Window Geometry:
   Displays:
