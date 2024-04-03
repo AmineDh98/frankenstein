@@ -1,0 +1,29 @@
+<!-- <?xml version="1.0"?> -->
+
+<launch>
+
+
+  <!-- <param name="robot_description" command="$(find xacro)/xacro $(find frankenstein_description)/urdf/frankenstein.urdf"/>
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+    </node>
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find frankenstein_description)/rviz/frankenstein_reality.rviz">
+    </node> -->
+
+
+
+
+  <node name="sick_scan_launcher" pkg="frankenstein_reality" type="sick_scan_launcher.sh" output="screen" />
+
+  <node pkg="frankenstein_reality" type="odometry_node_reality" name="robot_model" />
+  <!-- <node pkg="frankenstein_reality" type="visualizer_node_reality" name="path_visualizer" /> -->
+  <node pkg="frankenstein_reality" type="scan_filter_node" name="scan_filter_node" />
+  
+
+  
+  <!-- <node name="cartographer_launcher" pkg="frankenstein_reality" type="cartographer_launcher.sh" output="screen"/> -->
+
+  <node pkg="frankenstein_reality" type="data_parser2" name="data_parser2"/>
+  
+
+</launch>

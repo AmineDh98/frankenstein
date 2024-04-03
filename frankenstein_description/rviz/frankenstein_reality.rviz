@@ -10,8 +10,10 @@ Panels:
         - /Odometry1/Shape1
         - /Odometry2/Shape1
         - /MarkerArray1
-        - /MarkerArray1/Status1
         - /MarkerArray1/Namespaces1
+        - /Submaps1
+        - /Submaps1/Submaps1
+        - /Pose1
       Splitter Ratio: 0.5
     Tree Height: 746
   - Class: rviz/Selection
@@ -358,6 +360,160 @@ Visualization Manager:
       Topic: /gt_path
       Unreliable: false
       Value: false
+    - Class: Submaps
+      Enabled: true
+      Fade-out distance: 1
+      High Resolution: true
+      Low Resolution: false
+      Name: Submaps
+      Queue Size: 10
+      Submap query service: /submap_query
+      Submaps:
+        All: true
+        All Submap Pose Markers: true
+        Trajectory 0:
+          0.80: true
+          1.80: true
+          10.80: true
+          11.80: true
+          12.80: true
+          13.80: true
+          14.80: true
+          15.80: true
+          16.80: true
+          17.80: true
+          18.80: true
+          19.80: true
+          2.80: true
+          20.80: true
+          21.80: true
+          22.80: true
+          23.80: true
+          24.80: true
+          25.80: true
+          26.80: true
+          27.80: true
+          28.80: true
+          29.80: true
+          3.80: true
+          30.80: true
+          31.80: true
+          32.80: true
+          33.80: true
+          34.80: true
+          35.80: true
+          36.80: true
+          37.80: true
+          38.80: true
+          39.80: true
+          4.80: true
+          40.80: true
+          41.80: true
+          42.80: true
+          43.80: true
+          44.80: true
+          45.80: true
+          46.80: true
+          47.80: true
+          48.80: true
+          49.80: true
+          5.80: true
+          50.80: true
+          51.80: true
+          52.80: true
+          53.80: true
+          54.80: true
+          55.80: true
+          56.80: true
+          57.80: true
+          58.80: true
+          59.80: true
+          6.80: true
+          60.80: true
+          61.80: true
+          62.80: true
+          63.80: true
+          64.80: true
+          65.80: true
+          66.80: true
+          67.80: true
+          68.80: true
+          69.80: true
+          7.80: true
+          70.80: true
+          71.80: true
+          72.80: true
+          73.80: true
+          74.80: true
+          75.80: true
+          76.80: true
+          77.80: true
+          78.80: true
+          79.80: true
+          8.80: true
+          80.80: true
+          81.80: true
+          82.80: true
+          83.80: true
+          84.80: true
+          85.80: true
+          86.80: true
+          87.80: true
+          88.69: true
+          89.29: true
+          9.80: true
+          Submap Pose Markers: true
+          Value: true
+        Trajectory 1:
+          0.37: true
+          Submap Pose Markers: true
+          Value: true
+      Topic: /submap_list
+      Tracking frame: robot_frame
+      Unreliable: false
+      Value: true
+    - Alpha: 1
+      Axes Length: 1
+      Axes Radius: 0.10000000149011612
+      Class: rviz/Pose
+      Color: 255; 25; 0
+      Enabled: true
+      Head Length: 0.30000001192092896
+      Head Radius: 0.10000000149011612
+      Name: Pose
+      Queue Size: 10
+      Shaft Length: 1
+      Shaft Radius: 0.05000000074505806
+      Shape: Axes
+      Topic: /tracked_pose
+      Unreliable: false
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /trajectory_node_list
+      Name: MarkerArray
+      Namespaces:
+        Trajectory 0: true
+        Trajectory 1: true
+      Queue Size: 100
+      Value: true
+    - Alpha: 1
+      Arrow Length: 0.30000001192092896
+      Axes Length: 0.30000001192092896
+      Axes Radius: 0.009999999776482582
+      Class: rviz/PoseArray
+      Color: 255; 25; 0
+      Enabled: true
+      Head Length: 0.07000000029802322
+      Head Radius: 0.029999999329447746
+      Name: PoseArray
+      Queue Size: 10
+      Shaft Length: 0.23000000417232513
+      Shaft Radius: 0.009999999776482582
+      Shape: Arrow (Flat)
+      Topic: /gmcl_particlecloud
+      Unreliable: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -386,7 +542,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 120.6119384765625
+      Distance: 187.21176147460938
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -394,17 +550,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 1.560868263244629
-        Y: 23.843828201293945
-        Z: -51.635379791259766
+        X: 24.536645889282227
+        Y: 7.425668716430664
+        Z: -31.132081985473633
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.0497968196868896
+      Pitch: 1.4197965860366821
       Target Frame: <Fixed Frame>
-      Yaw: 4.723084449768066
+      Yaw: 3.183089256286621
     Saved: ~
 Window Geometry:
   Displays:
