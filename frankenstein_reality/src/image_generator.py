@@ -93,5 +93,9 @@ class LaserScanProcessor:
 if __name__ == '__main__':
     rospy.init_node('laser_scan_processor', anonymous=True)
     lsp = LaserScanProcessor()
+<<<<<<< HEAD
     rospy.spin()
     
+=======
+    rospy.spin()
+>>>>>>> 59616c8... personal
