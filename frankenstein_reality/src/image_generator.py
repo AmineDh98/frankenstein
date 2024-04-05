@@ -2,6 +2,7 @@
 import rospy
 from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
+from geometry_msgs.msg import PoseStamped
 import numpy as np
 import cv2
 import datetime
@@ -11,7 +12,7 @@ import tf
 class LaserScanProcessor:
     def __init__(self):
         self.scan_subscriber = rospy.Subscriber("/scan", LaserScan, self.scan_callback)
-        self.odom_subscriber = rospy.Subscriber("/odom", Odometry, self.odom_callback)
+        self.odom_subscriber = rospy.Subscriber("/tracked_pose", PoseStamped, self.odom_callback)
         self.scans_received = 0
         self.scan_data = []
         self.last_odom = None
@@ -64,7 +65,7 @@ class LaserScanProcessor:
         multi_channel_image = np.concatenate((*rgb_images, *occupancy_grids), axis=2)
 
         # Save the multi-channel image as a NumPy array
-        np.save(f"/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data/multi_channel_images/{timestamp_str}.npy", multi_channel_image)
+        np.save(f"/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data3/multi_channel_images/{timestamp_str}.npy", multi_channel_image)
 
         # # Save or display images
         # cv2.imwrite(f"/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data/rgb_images/{timestamp_str}.jpg", rgb_images[0])
@@ -72,19 +73,19 @@ class LaserScanProcessor:
 
         # Save pose data with the same timestamp if it's recent enough
         if self.last_odom and abs((scan_timestamp - self.last_odom.header.stamp).to_sec()) < 0.1:
-            orientation_q = self.last_odom.pose.pose.orientation
+            orientation_q = self.last_odom.pose.orientation
             _, _, yaw = tf.transformations.euler_from_quaternion([orientation_q.x, orientation_q.y, orientation_q.z, orientation_q.w])
 
             pose_data = {
                 'timestamp': scan_timestamp.to_sec(),  # Use the ROS Time object directly here
                 'position': {
-                    'x': self.last_odom.pose.pose.position.x,
-                    'y': self.last_odom.pose.pose.position.y,
+                    'x': self.last_odom.pose.position.x,
+                    'y': self.last_odom.pose.position.y,
                 },
                 'orientation': yaw  # Radians
             }
 
-            with open(f"/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data/gt_poses/{timestamp_str}.json", 'w') as f:
+            with open(f"/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data3/gt_poses/{timestamp_str}.json", 'w') as f:
                 json.dump(pose_data, f)
 
 if __name__ == '__main__':
