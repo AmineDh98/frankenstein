@@ -65,11 +65,13 @@ class LaserScanProcessor:
         multi_channel_image = np.concatenate((*rgb_images, *occupancy_grids), axis=2)
 
         # Save the multi-channel image as a NumPy array
-        np.save(f"/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data3/multi_channel_images/{timestamp_str}.npy", multi_channel_image)
+
+        np.save(f"/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data3/multi_channel_images/{timestamp_str}.npy", multi_channel_image)
+
 
         # # Save or display images
-        # cv2.imwrite(f"/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data/rgb_images/{timestamp_str}.jpg", rgb_images[0])
-        # cv2.imwrite(f"/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data/occupancy_grids/{timestamp_str}.jpg", occupancy_grids[1])
+        # cv2.imwrite(f"/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data/rgb_images/{timestamp_str}.jpg", rgb_images[0])
+        # cv2.imwrite(f"/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data/occupancy_grids/{timestamp_str}.jpg", occupancy_grids[1])
 
         # Save pose data with the same timestamp if it's recent enough
         if self.last_odom and abs((scan_timestamp - self.last_odom.header.stamp).to_sec()) < 0.1:
@@ -85,10 +87,11 @@ class LaserScanProcessor:
                 'orientation': yaw  # Radians
             }
 
-            with open(f"/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data3/gt_poses/{timestamp_str}.json", 'w') as f:
+            with open(f"/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data3/gt_poses/{timestamp_str}.json", 'w') as f:
                 json.dump(pose_data, f)
 
 if __name__ == '__main__':
     rospy.init_node('laser_scan_processor', anonymous=True)
     lsp = LaserScanProcessor()
     rospy.spin()
+    

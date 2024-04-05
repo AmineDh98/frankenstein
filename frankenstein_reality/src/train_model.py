@@ -248,48 +248,51 @@ def train_model(model, train_loader, val_loader, optimizer, scheduler, num_epoch
 
 
 
-
+beta_value = 10 
+number_of_epochs = 100
+learning_rate = 1e-6
+batchSize = 10
+evaluationMode = False
 
 # Initialize the Dataset and DataLoader
 train_dataset = LidarPoseDataset(
-    root_dir='/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data/train',
+    root_dir='/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data2/train',
     transform=ToTensor()
 )
-train_loader = DataLoader(train_dataset, batch_size=10, shuffle=True)
+train_loader = DataLoader(train_dataset, batch_size=batchSize, shuffle=True)
 
 val_dataset = LidarPoseDataset(
-    root_dir='/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data/val',
+    root_dir='/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data2/val',
     transform=ToTensor()
 )
-val_loader = DataLoader(val_dataset, batch_size=10, shuffle=True)
+val_loader = DataLoader(val_dataset, batch_size=batchSize, shuffle=True)
 
 test_dataset = LidarPoseDataset(
-    root_dir='/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data/test',
+    root_dir='/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data2/test',
     transform=ToTensor()
 )
-test_loader = DataLoader(test_dataset, batch_size=10, shuffle=False)  # Usually, we don't shuffle test data
+test_loader = DataLoader(test_dataset, batch_size=batchSize, shuffle=False)  # Usually, we don't shuffle test data
 
-evaluationMode = True
 if evaluationMode==False:
     # Create the CNN model
     model = CustomCNN()
-    beta_value = 3.0 
+    
 
     # If you're using a GPU, move the model to GPU
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model.to(device)
 
     # Define the optimizer
-    optimizer = torch.optim.Adam(model.parameters(), lr=2e-4)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     scheduler = ReduceLROnPlateau(optimizer, 'min', patience=5, factor=0.5)
 
     # Training loop with early stopping and separate loss reporting
 
     # Run the training loop
-    train_model(model, train_loader, val_loader, optimizer, scheduler, num_epochs=50, beta=beta_value)
+    train_model(model, train_loader, val_loader, optimizer, scheduler, num_epochs=number_of_epochs, beta=beta_value)
 
     # Save the trained model
-    torch.save(model.state_dict(), '/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/models/cnn_pose_estimator.pth')
+    torch.save(model.state_dict(), '/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/models/cnn_pose_estimator2.pth')
 
     
 
@@ -302,12 +305,12 @@ else:
     model = CustomCNN().to(device)
 
     # Load the trained model parameters
-    model.load_state_dict(torch.load('/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/models/cnn_pose_estimator.pth', map_location=device))
+    model.load_state_dict(torch.load('/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/models/cnn_pose_estimator2.pth', map_location=device))
 
     # Ensure the model is in evaluation mode
     model.eval()
 
-    evaluate_model(model, test_loader, beta=5.0)
+    evaluate_model(model, test_loader, beta=beta_value)
 
 
 
