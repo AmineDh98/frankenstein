@@ -9,7 +9,6 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 
 
-
 class CustomCNN(nn.Module):
     def __init__(self, n_channels=18):
         super(CustomCNN, self).__init__()
@@ -73,10 +72,7 @@ class CustomCNN(nn.Module):
         self._num_flat_features = int(output.nelement() / output.shape[0])  # Ensure this is an int
         # Dynamically set the in_features for fc1 based on the calculated number of flat features
         self.fc1 = nn.Linear(self._num_flat_features, 4096)
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
 
 
 
@@ -155,9 +151,43 @@ class EarlyStopping:
             self.counter = 0
         return self.early_stop
     
-<<<<<<< Updated upstream
-=======
-# Training loop with early stopping
+def custom_loss(output, target, beta=1.0):
+    position_loss = torch.norm(output[:, :2] - target[:, :2], dim=1).mean()
+    orientation_error = output[:, 2] - target[:, 2]
+    orientation_error = torch.where(
+        orientation_error > np.pi, orientation_error - 2 * np.pi, orientation_error
+    )
+    orientation_error = torch.where(
+        orientation_error < -np.pi, orientation_error + 2 * np.pi, orientation_error
+    )
+    orientation_loss = (orientation_error ** 2).mean()
+    total_loss = beta * position_loss + orientation_loss
+    return total_loss, position_loss, orientation_loss
+
+
+    
+def evaluate_model(model, test_loader, beta=1.0):
+    model.eval()  # Set model to evaluation mode
+    test_position_loss = 0.0
+    test_orientation_loss = 0.0
+    with torch.no_grad():
+        for data in test_loader:
+            inputs = data['image'].to(device)
+            labels = data['pose'].to(device)
+            outputs = model(inputs)
+            _, position_loss, orientation_loss = custom_loss(outputs, labels, beta)
+            test_position_loss += position_loss.item()
+            test_orientation_loss += orientation_loss.item()
+    
+    # Calculate average losses
+    avg_test_position_loss = test_position_loss / len(test_loader)
+    avg_test_orientation_loss = test_orientation_loss / len(test_loader)
+    avg_test_orientation_loss_degrees = np.degrees(avg_test_orientation_loss)  # Convert to degrees
+    
+    print(f'Test Position Loss (m): {avg_test_position_loss:.4f}')
+    print(f'Test Orientation Loss (degrees): {avg_test_orientation_loss_degrees:.2f}')
+
+
 def train_model(model, train_loader, val_loader, optimizer, scheduler, num_epochs=25, beta=1.0):
     early_stopping = EarlyStopping(patience=10, verbose=True)
     
@@ -217,197 +247,32 @@ def train_model(model, train_loader, val_loader, optimizer, scheduler, num_epoch
 
 
 
-# Custom loss function with separate position and orientation error components
->>>>>>> Stashed changes
-def custom_loss(output, target, beta=1.0):
-    position_loss = torch.norm(output[:, :2] - target[:, :2], dim=1).mean()
-    orientation_error = output[:, 2] - target[:, 2]
-    orientation_error = torch.where(
-        orientation_error > np.pi, orientation_error - 2 * np.pi, orientation_error
-    )
-    orientation_error = torch.where(
-        orientation_error < -np.pi, orientation_error + 2 * np.pi, orientation_error
-    )
-    orientation_loss = (orientation_error ** 2).mean()
-    total_loss = beta * position_loss + orientation_loss
-    return total_loss, position_loss, orientation_loss
-<<<<<<< Updated upstream
-
-
-    
-=======
-    
-
->>>>>>> Stashed changes
-def evaluate_model(model, test_loader, beta=1.0):
-    model.eval()  # Set model to evaluation mode
-    test_position_loss = 0.0
-    test_orientation_loss = 0.0
-    with torch.no_grad():
-        for data in test_loader:
-            inputs = data['image'].to(device)
-            labels = data['pose'].to(device)
-            outputs = model(inputs)
-            _, position_loss, orientation_loss = custom_loss(outputs, labels, beta)
-            test_position_loss += position_loss.item()
-            test_orientation_loss += orientation_loss.item()
-    
-    # Calculate average losses
-    avg_test_position_loss = test_position_loss / len(test_loader)
-    avg_test_orientation_loss = test_orientation_loss / len(test_loader)
-    avg_test_orientation_loss_degrees = np.degrees(avg_test_orientation_loss)  # Convert to degrees
-    
-    print(f'Test Position Loss (m): {avg_test_position_loss:.4f}')
-    print(f'Test Orientation Loss (degrees): {avg_test_orientation_loss_degrees:.2f}')
-<<<<<<< Updated upstream
-
-
-def train_model(model, train_loader, val_loader, optimizer, scheduler, num_epochs=25, beta=1.0):
-    early_stopping = EarlyStopping(patience=10, verbose=True)
-    
-    for epoch in range(num_epochs):
-        model.train()  # Set model to training mode
-        running_position_loss = 0.0
-        running_orientation_loss = 0.0
-        for i, data in enumerate(train_loader):
-            inputs = data['image'].to(device)
-            labels = data['pose'].to(device)
-
-            optimizer.zero_grad()
-            outputs = model(inputs)
-            loss, position_loss, orientation_loss = custom_loss(outputs, labels, beta)
-            loss.backward()
-            optimizer.step()
-            running_position_loss += position_loss.item()
-            running_orientation_loss += orientation_loss.item()
-
-        # Calculate average losses
-        avg_position_loss = running_position_loss / len(train_loader)
-        avg_orientation_loss = running_orientation_loss / len(train_loader)
-        avg_orientation_loss_degrees = np.degrees(avg_orientation_loss)  # Convert to degrees
-
-        # Validation phase
-        model.eval()  # Set model to evaluation mode
-        val_position_loss = 0.0
-        val_orientation_loss = 0.0
-        with torch.no_grad():
-            for i, data in enumerate(val_loader):
-                inputs = data['image'].to(device)
-                labels = data['pose'].to(device)
-                outputs = model(inputs)
-                loss, position_loss, orientation_loss = custom_loss(outputs, labels, beta)
-                val_position_loss += position_loss.item()
-                val_orientation_loss += orientation_loss.item()
-
-        avg_val_position_loss = val_position_loss / len(val_loader)
-        avg_val_orientation_loss = val_orientation_loss / len(val_loader)
-        avg_val_orientation_loss_degrees = np.degrees(avg_val_orientation_loss)  # Convert to degrees
-
-        print(f'Epoch {epoch + 1}/{num_epochs}')
-        print(f'Train Position Loss (m): {avg_position_loss:.4f}')
-        print(f'Train Orientation Loss (degrees): {avg_orientation_loss_degrees:.2f}')
-        print(f'Validation Position Loss (m): {avg_val_position_loss:.4f}')
-        print(f'Validation Orientation Loss (degrees): {avg_val_orientation_loss_degrees:.2f}')
-
-        # Update the learning rate scheduler
-        scheduler.step(avg_val_position_loss + beta * avg_val_orientation_loss)
-
-        # Early stopping check
-        if early_stopping(avg_val_position_loss + beta * avg_val_orientation_loss):
-            print("Early stopping")
-            break
-=======
-
-
-
+beta_value = 10 
+number_of_epochs = 100
+learning_rate = 1e-6
+batchSize = 10
+evaluationMode = True
 
 # Initialize the Dataset and DataLoader
 train_dataset = LidarPoseDataset(
     root_dir='/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data/train',
     transform=ToTensor()
 )
-train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+train_loader = DataLoader(train_dataset, batch_size=10, shuffle=True)
 
 val_dataset = LidarPoseDataset(
     root_dir='/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data/val',
     transform=ToTensor()
 )
-val_loader = DataLoader(val_dataset, batch_size=32, shuffle=True)
+val_loader = DataLoader(val_dataset, batch_size=10, shuffle=True)
 
 test_dataset = LidarPoseDataset(
     root_dir='/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data/test',
     transform=ToTensor()
 )
-test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)  # Usually, we don't shuffle test data
-
-
-
-
-evaluationMode = True
-if evaluationMode==False:
-    # Create the CNN model
-    model = CustomCNN()
-    beta_value = 3.0 
-
-    # If you're using a GPU, move the model to GPU
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    model.to(device)
-
-    # Define the optimizer
-    optimizer = torch.optim.Adam(model.parameters(), lr=2e-4)
-    scheduler = ReduceLROnPlateau(optimizer, 'min', patience=5, factor=0.5)
-
-    # Training loop with early stopping and separate loss reporting
-
-    # Run the training loop
-    train_model(model, train_loader, val_loader, optimizer, scheduler, num_epochs=50, beta=beta_value)
-
-    # Save the trained model
-    torch.save(model.state_dict(), '/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/models/cnn_pose_estimator.pth')
-
-    
-
-else:
-    # Initialize the model
-    
-
-    # If you're using a GPU, move the model to GPU
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    model = CustomCNN().to(device)
-
-    # Load the trained model parameters
-    model.load_state_dict(torch.load('/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/models/cnn_pose_estimator.pth', map_location=device))
->>>>>>> Stashed changes
-
-    # Ensure the model is in evaluation mode
-    model.eval()
-
-<<<<<<< Updated upstream
-
-
-
-
-
-# Initialize the Dataset and DataLoader
-train_dataset = LidarPoseDataset(
-    root_dir='/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data/train',
-    transform=ToTensor()
-)
-train_loader = DataLoader(train_dataset, batch_size=10, shuffle=True)
-
-val_dataset = LidarPoseDataset(
-    root_dir='/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data/val',
-    transform=ToTensor()
-)
-val_loader = DataLoader(val_dataset, batch_size=10, shuffle=True)
-
-test_dataset = LidarPoseDataset(
-    root_dir='/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data/test',
-    transform=ToTensor()
-)
 test_loader = DataLoader(test_dataset, batch_size=10, shuffle=False)  # Usually, we don't shuffle test data
 
-evaluationMode = True
+
 if evaluationMode==False:
     # Create the CNN model
     model = CustomCNN()
@@ -418,13 +283,13 @@ if evaluationMode==False:
     model.to(device)
 
     # Define the optimizer
-    optimizer = torch.optim.Adam(model.parameters(), lr=2e-4)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     scheduler = ReduceLROnPlateau(optimizer, 'min', patience=5, factor=0.5)
 
     # Training loop with early stopping and separate loss reporting
 
     # Run the training loop
-    train_model(model, train_loader, val_loader, optimizer, scheduler, num_epochs=50, beta=beta_value)
+    train_model(model, train_loader, val_loader, optimizer, scheduler, num_epochs=number_of_epochs, beta=beta_value)
 
     # Save the trained model
     torch.save(model.state_dict(), '/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/models/cnn_pose_estimator.pth')
@@ -449,7 +314,4 @@ else:
 
 
 
-=======
-    evaluate_model(model, test_loader, beta=5.0)
->>>>>>> Stashed changes
 

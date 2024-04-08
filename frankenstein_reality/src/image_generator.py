@@ -44,8 +44,9 @@ class LaserScanProcessor:
             robot_x, robot_y = image_size // 2, image_size // 2  # Robot position in image coordinates
 
             for angle, distance in zip(angles, scan.ranges):
-                if distance == 0 or distance > scan.range_max:  # Invalid or out-of-range measurements
-                    continue
+                # Adjust distance for out-of-range measurements to treat as free space
+                if distance == 0 or distance > scan.range_max:
+                    distance = scan.range_max
 
                 # Transform laser scan points to image coordinates
                 x = int(robot_x + (distance * np.cos(angle)) * image_size / (scan.range_max * 2))
@@ -54,10 +55,12 @@ class LaserScanProcessor:
                 # Draw a line for free space
                 cv2.line(occupancy_grids[idx], (robot_x, robot_y), (x, y), (255, 255, 255), 1)
 
-                # Mark the end point of the scan as an obstacle
+                # Check if the point is within the image bounds to mark as an obstacle
                 if 0 <= x < image_size and 0 <= y < image_size:
-                    rgb_images[idx][y, x] = [0, 0, 0]
-                    cv2.circle(occupancy_grids[idx], (x, y), 2, (0, 0, 0), -1)
+                    if distance < scan.range_max:  # Only mark as an obstacle if not out-of-range
+                        rgb_images[idx][y, x] = [0, 0, 0]
+                        cv2.circle(occupancy_grids[idx], (x, y), 2, (0, 0, 0), -1)
+
 
         # Convert ROS Time to datetime object and then to a string for the timestamp
         timestamp_str = datetime.datetime.fromtimestamp(scan_timestamp.to_sec()).strftime("%Y%m%d-%H%M%S")
@@ -65,11 +68,11 @@ class LaserScanProcessor:
         multi_channel_image = np.concatenate((*rgb_images, *occupancy_grids), axis=2)
 
         # Save the multi-channel image as a NumPy array
-        np.save(f"/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data3/multi_channel_images/{timestamp_str}.npy", multi_channel_image)
+        # np.save(f"/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data3/multi_channel_images/{timestamp_str}.npy", multi_channel_image)
 
         # # Save or display images
-        # cv2.imwrite(f"/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data/rgb_images/{timestamp_str}.jpg", rgb_images[0])
-        # cv2.imwrite(f"/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data/occupancy_grids/{timestamp_str}.jpg", occupancy_grids[1])
+        cv2.imwrite(f"/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/rgb_images/{timestamp_str}.jpg", rgb_images[0])
+        cv2.imwrite(f"/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/occupancy_grids/{timestamp_str}.jpg", occupancy_grids[1])
 
         # Save pose data with the same timestamp if it's recent enough
         if self.last_odom and abs((scan_timestamp - self.last_odom.header.stamp).to_sec()) < 0.1:
@@ -85,8 +88,8 @@ class LaserScanProcessor:
                 'orientation': yaw  # Radians
             }
 
-            with open(f"/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data3/gt_poses/{timestamp_str}.json", 'w') as f:
-                json.dump(pose_data, f)
+            # with open(f"/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data3/gt_poses/{timestamp_str}.json", 'w') as f:
+            #     json.dump(pose_data, f)
 
 if __name__ == '__main__':
     rospy.init_node('laser_scan_processor', anonymous=True)
