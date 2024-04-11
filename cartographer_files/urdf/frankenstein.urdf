@@ -1,0 +1,242 @@
+<robot name="frankenstein_reality"> 
+
+    <link name="robot_frame"/>
+  
+    <link name="base_link">
+        <visual>
+            <geometry>
+            <cylinder length="0.5" radius="0.002"/>
+            </geometry>
+        </visual>
+    </link>
+
+    <joint name="base_to_robot_frame" type="fixed">
+        <parent link="robot_frame"/>
+        <child link="base_link"/>
+        <origin xyz="0 0 0" rpy="-1.570796 0 3.141593"/>
+    </joint>
+
+    <link name="leg1">
+    
+        <visual>
+            <geometry>
+            <box size="0.909 0.192 0.03"/>
+            </geometry>
+        </visual>
+    </link>
+
+    <joint name="leg1_baselink" type="fixed">
+        <parent link="base_link"/>
+        <child link="leg1"/>
+        <origin xyz="-0.2545 0 -0.187" rpy="1.570796 0 0"/>     
+    </joint>
+
+    <link name="leg2">
+        <visual>
+            <geometry>
+            <box size="0.909 0.192 0.03"/>
+            </geometry>
+        </visual>
+    </link>
+
+    <joint name="leg2_baselink" type="fixed">
+    <parent link="base_link"/> 
+    <child link="leg2"/>
+    <origin xyz="-0.2545 0 0.187" rpy="1.570796 0 0"/> 
+    </joint>
+
+    <link name="chassis">
+        <visual>
+            <geometry>
+            <box size="0.806 0.742 0.831995"/>
+            </geometry>
+        </visual>
+    </link>
+
+    <joint name="leg1_to_chassis" type="fixed">
+        <parent link="leg1"/> 
+        <child link="chassis"/>
+        <origin xyz="-0.8575 0.187 0.4009975" rpy="0 0 0"/>
+    </joint>
+
+
+    <link name="left_free_steering_column">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+            <cylinder radius="0.02" length="0.2"/>
+            </geometry>
+        </visual>
+    </link>
+
+
+    <joint name="left_free_steering_joint" type="continuous">
+        <parent link="chassis"/>
+        <child link="left_free_steering_column"/>
+        <origin xyz="-0.388 -0.2 -0.3759975" rpy="1.570796 0 0"/>
+        <axis xyz="0 1 0"/>
+    </joint>
+
+
+    
+    <link name="left_free_wheel">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+            <cylinder radius="0.1" length="0.05"/>
+            </geometry>
+        </visual>
+    </link>
+
+    <joint name="left_free_joint" type="continuous">
+        <parent link="left_free_steering_column"/>
+        <child link="left_free_wheel"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <axis xyz="0 0 1"/>
+    </joint>
+
+
+
+    <link name="rod">
+        <visual>
+            <geometry>
+            <box size="0.145 0.742 1.2"/>
+            </geometry>
+        </visual>
+    </link>
+
+    <joint name="rod_to_chassis" type="fixed">
+        <parent link="chassis"/>
+        <child link="rod"/>
+        <origin xyz="0.1295 0 1.0159975" rpy="0 0 0"/>
+    </joint>
+
+    <link name="slider">
+        <visual>
+            <geometry>
+            <box size="0.0856 0.742 0.06"/>
+            </geometry>
+        </visual>
+    </link>
+
+    <joint name="slider_to_chassis" type="fixed">
+        <parent link="chassis"/>
+        <child link="slider"/>
+        <origin xyz="0.4458 0 0.4159975" rpy="0 0 0"/>
+    </joint>
+
+
+    <link name="holder1">
+        <visual>
+            <geometry>
+            <box size="1.160349 0.192 0.03"/>
+            </geometry>
+        </visual>
+    </link>
+
+    <joint name="holder1_to_slider" type="fixed">
+        <parent link="slider"/>
+        <child link="holder1"/>
+        <origin xyz="0.5801745 -0.187 0" rpy="0 0 0"/>
+    </joint>
+
+
+    <link name="holder2">
+        <visual>
+            <geometry>
+            <box size="1.160349 0.192 0.03"/>
+            </geometry>
+        </visual>
+    </link>
+
+    <joint name="holder2_to_slider" type="fixed">
+        <parent link="slider"/>
+        <child link="holder2"/>
+        <origin xyz="0.5801745 0.187 0" rpy="0 0 0"/>
+    </joint>
+
+
+    <link name="front_right_steering_column">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+            <cylinder radius="0.02" length="0.2"/>
+            </geometry>
+        </visual>
+    </link>
+
+
+    <joint name="front_right_steering_joint" type="revolute">
+        <parent link="chassis"/>
+        <child link="front_right_steering_column"/>
+        <origin xyz="-0.388 0.2 -0.3759975" rpy="1.570796 0 0"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="-0.785398" upper="0.785398" effort="100" velocity="10"/>
+    </joint>
+
+
+
+    <link name="front_right_wheel">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+            <cylinder radius="0.1" length="0.05"/>
+            </geometry>
+        </visual>
+    </link>
+
+    <joint name="front_right_wheel_joint" type="continuous">
+        <parent link="front_right_steering_column"/>
+        <child link="front_right_wheel"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <axis xyz="0 0 1"/>
+    </joint>
+
+    <link name="back_right_wheel">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+            <cylinder radius="0.06" length="0.03"/>
+            </geometry>
+        </visual>
+    </link>
+
+    <joint name="back_right_wheel_roll_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="back_right_wheel"/>
+        <origin xyz="0 0 0.2" rpy="0 0 1.570796"/>
+        <axis xyz="0 0 1"/>
+    </joint>
+
+    <link name="back_left_wheel">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+            <cylinder radius="0.06" length="0.03"/>
+            </geometry>
+        </visual>
+    </link>
+
+    <joint name="back_left_wheel_roll_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="back_left_wheel"/>
+        <origin xyz="0 0 -0.2" rpy="0 0 1.570796"/>
+        <axis xyz="0 0 1"/>
+    </joint>
+
+    <link name="lidar_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <cylinder radius="0.06" length="0.224"/>
+            </geometry>
+        </visual> 
+    </link>
+
+    <joint name="lidar_to_rod" type="fixed">
+        <parent link="rod"/>
+        <child link="lidar_link"/>
+        <origin xyz="0 0 0.623409" rpy="0 0 3.141593"/>
+    </joint>
+
+</robot>
