@@ -33,6 +33,14 @@ class CustomCNN(nn.Module):
         self.bn5 = nn.BatchNorm2d(128)
         self.pool5 = nn.MaxPool2d(2, 2)
 
+        self.conv6 = nn.Conv2d(128, 128, kernel_size=3, padding=1)
+        self.bn6 = nn.BatchNorm2d(128)
+        self.pool6 = nn.MaxPool2d(2, 2)
+
+        self.conv7 = nn.Conv2d(128, 128, kernel_size=3, padding=1)
+        self.bn7 = nn.BatchNorm2d(128)
+        self.pool7 = nn.MaxPool2d(2, 2)
+
         # Placeholder for the number of input features to the first fully connected layer
         self._num_flat_features = None
 
@@ -63,6 +71,9 @@ class CustomCNN(nn.Module):
         x = self.pool3(F.leaky_relu(self.bn3(self.conv3(x)), negative_slope=0.01))
         x = self.pool4(F.leaky_relu(self.bn4(self.conv4(x)), negative_slope=0.01))
         x = self.pool5(F.leaky_relu(self.bn5(self.conv5(x)), negative_slope=0.01))
+        x = self.pool6(F.leaky_relu(self.bn6(self.conv6(x)), negative_slope=0.01))
+        x = self.pool7(F.leaky_relu(self.bn7(self.conv7(x)), negative_slope=0.01))
+        
         return x
 
     def _set_num_flat_features(self):
@@ -133,16 +144,16 @@ def plot_on_map(image_file, resolution, origin, predicted, ground_truth, ground_
     plt.show()
 
 # Load model
-model = load_model("/home/aminedhemaied/Downloads/cnn_pose_estimator_test1.pth")
+model = load_model("/home/aminedhemaied/Downloads/models/8th/cnn_pose_estimatorNewOcc_noPar.pth")
 
 # Preprocess the image
-image = preprocess_image("/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data/test/multi_channel_images/20240321-104935.npy")
+image = preprocess_image("/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data3/multi_channel_images/20240408-104930.npy")
 
 # Predict the position using the model
 predicted_position = predict_position(model, image)
 print('predicted_position ', predicted_position)
 # Load the ground truth
-ground_truth_position, ground_truth_orientation = load_ground_truth("/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data/test/gt_poses/20240321-104935.json")
+ground_truth_position, ground_truth_orientation = load_ground_truth("/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data3/gt_poses/20240408-104930.json")
 
 # Load map parameters from the YAML file
 with open("/home/aminedhemaied/bagfiles/light_bags/best1/map.yaml", 'r') as f:

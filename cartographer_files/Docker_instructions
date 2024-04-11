@@ -1,0 +1,15 @@
+
+sudo docker build -t cartographer_ros:latest -f /home/aminedhemaied/cartographer_ws/src/cartographer_ros/Dockerfile.noetic /home/aminedhemaied
+
+
+
+sudo docker run -it --rm     --env="DISPLAY"     --env="XDG_RUNTIME_DIR=/tmp/runtime-root"     --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"     --volume="/home/aminedhemaied/catkin_ws:/home/aminedhemaied/catkin_ws"     --volume="/home/aminedhemaied/cartographer_ws:/home/aminedhemaied/cartographer_ws"     --volume="/home/aminedhemaied/bagfiles:/home/aminedhemaied/bagfiles"     --device /dev/dri     cartographer_ros:latest
+    
+    
+    
+
+source /home/aminedhemaied/catkin_ws/devel/setup.bash   
+source /home/aminedhemaied/cartographer_ws/install_isolated/setup.bash
+
+
+roslaunch cartographer_ros offline_frankenstein_reality.launch bag_filenames:=/home/aminedhemaied/bagfiles/light_bags/filtered_full_lc.bag
