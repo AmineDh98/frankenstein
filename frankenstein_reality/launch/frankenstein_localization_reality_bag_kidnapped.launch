@@ -1,0 +1,22 @@
+<!-- <?xml version="1.0"?> -->
+
+<launch>
+
+  <arg name="map_file" default="${HOME}/bagfiles/map5/map5.pbstream" />
+  <arg name="bag_file" default="${HOME}/bagfiles/map.bag" />
+
+
+  <param name="robot_description" command="$(find xacro)/xacro $(find frankenstein_description)/urdf/frankenstein.urdf"/>
+  <node name="robot_state_publisher" pkg="robot_state_publisher"
+    type="robot_state_publisher" />
+
+  <node pkg="frankenstein_reality" type="visualizer_node_reality" name="path_visualizer" />
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find frankenstein_description)/rviz/frankenstein_reality.rviz">
+    </node>
+  
+  <node name="cartographer_localization_bag_launcher" pkg="frankenstein_reality" type="cartographer_localization_bag_kidnapped_launcher.sh" args="$(arg map_file) $(arg bag_file)" output="screen"/>
+  <!-- <node pkg="frankenstein_reality"  type="image_generator.py" name="laser_scan_processor" /> -->
+  
+  <node pkg="frankenstein_reality"  type="initialPose_finder.py" name="laser_scan_processor" />
+
+</launch>
