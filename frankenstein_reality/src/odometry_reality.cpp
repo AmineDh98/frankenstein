@@ -15,8 +15,8 @@
 
 class RobotModel {
 private:
-    double var_v = 0.000001;
-    double var_steer = 0.000001;
+    double var_v = 0.08;
+    double var_steer = 0.02;
     std::array<std::array<double, 3>, 3> P = {{{0}}};
 
     // Process noise covariance matrix (Q)

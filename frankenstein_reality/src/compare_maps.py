@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import yaml
+import math
 
 def calculate_distance(pt1, pt2):
     return np.sqrt((pt1[0] - pt2[0])**2 + (pt1[1] - pt2[1])**2)
@@ -11,10 +13,21 @@ slam_image_path = '/home/aminedhemaied/bagfiles/light_bags/best1/map.png'
 gt_image = cv2.imread(gt_image_path, cv2.IMREAD_GRAYSCALE)
 slam_image = cv2.imread(slam_image_path, cv2.IMREAD_GRAYSCALE)
 
-def world_to_pixel(world_coordinates, resolution, origin):
+def world_to_pixel(world_coordinates, resolution, origin, image_height):
+    # Convert world coordinates (meters) to pixel coordinates
+    # X-coordinate: straightforward conversion using the origin
     pixel_x = int((world_coordinates[0] - origin[0]) / resolution)
-    pixel_y = int((world_coordinates[1] - origin[1]) / resolution)
+    
+    # Y-coordinate: invert the axis since the image's origin is top-left and the map's origin is bottom-left
+    pixel_y = image_height - int((world_coordinates[1] - origin[1]) / resolution)
     return (pixel_x, pixel_y)
+
+def pixel_to_world(pixel_coordinates, resolution, origin, image_height):
+    # Convert pixel coordinates to world coordinates (in meters)
+    world_x = origin[0] + pixel_coordinates[0] * resolution
+    world_y = origin[1] - (image_height - pixel_coordinates[1]) * resolution
+    return (world_x, world_y)
+
 
 # Function to draw corners on the image
 def draw_corners(image, corners, color=(100, 55, 250), radius=50, thickness=-1):
@@ -22,9 +35,10 @@ def draw_corners(image, corners, color=(100, 55, 250), radius=50, thickness=-1):
         cv2.circle(image, (int(corner[0]), int(corner[1])), radius, color, thickness)
     return image
 
-origin_world = [216.41, 360.201, 0.0]  # SLAM origin in world coordinates
+
 resolution_initial = 0.08  # initial resolution
-origin_pixel_initial = world_to_pixel(origin_world[:2], resolution_initial, (0, 0))
+origin_world = [-216.41, -360.201]  # Origin as read from the YAML file
+origin_pixel_initial = world_to_pixel([0, 0], resolution_initial, origin_world, slam_image.shape[0])
 
 print('origin_pixel_initial = ', origin_pixel_initial)
 
@@ -41,7 +55,7 @@ slam_image_with_corners = cv2.cvtColor(slam_image, cv2.COLOR_GRAY2BGR)
 gt_image_with_corners = draw_corners(gt_image_with_corners, gt_corners)
 slam_image_with_corners = draw_corners(slam_image_with_corners, slam_corners)
 
-slam_image_with_origin = draw_corners(slam_image_with_corners, [np.array(origin_pixel_initial)], color=(0, 255, 0), radius=30)
+slam_image_with_origin = draw_corners(slam_image_with_corners, [np.array(origin_pixel_initial)], color=(0, 255, 0), radius=50)
 
 
 # Calculate the average scale factor based on the distances between corner points
@@ -61,8 +75,9 @@ slam_corners_rescaled = np.array([corner * average_scale for corner in slam_corn
 slam_resized_with_corners = cv2.cvtColor(slam_resized, cv2.COLOR_GRAY2BGR)
 slam_resized_with_corners = draw_corners(slam_resized_with_corners, slam_corners_rescaled)
 
-# Compute the transformation matrix to align the corners
 transform_matrix = cv2.getPerspectiveTransform(slam_corners_rescaled, gt_corners)
+# Compute the transformation matrix to align the corners
+transform_matrix_origin = cv2.getPerspectiveTransform(slam_corners.astype(np.float32), gt_corners.astype(np.float32))
 
 # Warp the resized SLAM image using the transformation matrix
 slam_transformed = cv2.warpPerspective(slam_resized, transform_matrix, (gt_image.shape[1], gt_image.shape[0]))
@@ -75,8 +90,11 @@ slam_transformed_with_corners = draw_corners(slam_transformed_with_corners, gt_c
 error_map = cv2.absdiff(gt_image, slam_transformed)
 
 
-origin_pixel_transformed = cv2.perspectiveTransform(np.array([[origin_pixel_initial]], dtype=np.float32), transform_matrix)[0][0]
-slam_transformed_with_origin = draw_corners(slam_transformed_with_corners, [origin_pixel_transformed], color=(0, 255, 0), radius=30)
+origin_pixel_transformed = cv2.perspectiveTransform(np.array([[origin_pixel_initial]], dtype=np.float32), transform_matrix_origin)
+
+print('origin_pixel_transformed = ', origin_pixel_transformed[0][0])
+
+slam_transformed_with_origin = draw_corners(slam_transformed_with_corners, [origin_pixel_transformed[0][0]], color=(0, 255, 0), radius=30)
 resolution_transformed = resolution_initial / average_scale
 print('resolution_transformed = ', resolution_transformed)
 plt.subplot(221), plt.imshow(gt_image_with_corners), plt.title('Ground Truth Map with Corners')
@@ -104,3 +122,24 @@ plt.show()
 # cv2.imwrite(f"{base_directory}/resized_slam_map_with_corners.png", slam_resized_with_corners)
 # cv2.imwrite(f"{base_directory}/transformed_slam_map_with_corners.png", slam_transformed_with_corners)
 # cv2.imwrite(f"{base_directory}/error_map.png", error_map)
+
+
+# Calculate the transformed origin in world coordinates
+transformed_origin_world = pixel_to_world(origin_pixel_transformed[0][0], resolution_transformed, origin_world, gt_image.shape[0])
+print('transformed_origin_world = ', transformed_origin_world[0])
+# YAML content
+yaml_content = {
+    'image': 'transformed_slam_map.png',
+    'resolution': math.floor(resolution_transformed * 10) / 10 ,
+    'origin': [math.floor(transformed_origin_world[0] * 10) / 10, math.floor(transformed_origin_world[1] * 10) / 10, 0.0],
+    'negate': 0,
+    'occupied_thresh': 0.65,
+    'free_thresh': 0.196,
+}
+
+# Save the YAML file
+yaml_file_path = '/home/aminedhemaied/Thesis/results/map/transformed_slam_map.yaml'
+with open(yaml_file_path, 'w') as file:
+    yaml.dump(yaml_content, file, default_flow_style=False)
+
+print("YAML file for transformed SLAM map saved at:", yaml_file_path)

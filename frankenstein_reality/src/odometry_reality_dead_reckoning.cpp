@@ -15,14 +15,14 @@
 
 class RobotModel {
 private:
-    double var_x = 0.1;
-    double var_y = 0.1;
-    double var_theta = 0.1;
+    double var_v = 0.08;
+    double var_steer = 0.02;
+    std::array<std::array<double, 3>, 3> P = {{{0}}};
 
-    std::array<std::array<double, 3>, 3> Pk = {{
-        {var_x, 0, 0},  // Covariance in x
-        {0, var_y, 0},  // Covariance in y
-        {0, 0, var_theta}  // Covariance in theta
+    // Process noise covariance matrix (Q)
+    std::array<std::array<double, 2>, 2> Q = {{
+        {var_v, 0},
+        {0, var_steer}
     }};
     double x = 0.0, y = 0.0, alpha = 0.0; // Position and orientation
     double L = 1.33595; // Wheelbase
@@ -58,6 +58,48 @@ private:
 
             x += deltaX;
             y += deltaY;
+            // Approximate Jacobian of motion model w.r.t. state variables (F_x)
+            std::array<std::array<double, 3>, 3> F_x = {{
+                {1, 0, -deltaY},
+                {0, 1, deltaX},
+                {0, 0, 1}
+            }};
+
+            // Approximate Jacobian of motion model w.r.t. control inputs (F_u)
+            // Note: These are simplified and should be derived based on your specific model
+            std::array<std::array<double, 2>, 3> F_u = {{
+                {cos(alpha) * dt, -IncDist * sin(alpha)},
+                {sin(alpha) * dt, IncDist * cos(alpha)},
+                {0, dt / L}
+            }};
+
+            
+
+            // Update the covariance matrix P
+            std::array<std::array<double, 3>, 3> tempP = P; // Copy of the original P for calculations
+
+            // First term: F_x * P * F_x^T
+            for (int i = 0; i < 3; ++i) {
+                for (int j = 0; j < 3; ++j) {
+                    P[i][j] = 0;
+                    for (int k = 0; k < 3; ++k) {
+                        for (int l = 0; l < 3; ++l) {
+                            P[i][j] += F_x[i][k] * tempP[k][l] * F_x[j][l];
+                        }
+                    }
+                }
+            }
+
+            // Second term: F_u * Q * F_u^T
+            std::array<std::array<double, 3>, 3> FuQT = {{{0}}};
+            for (int i = 0; i < 3; ++i) {
+                for (int j = 0; j < 3; ++j) {
+                    for (int k = 0; k < 2; ++k) {
+                        FuQT[i][j] += F_u[i][k] * Q[k][k] * F_u[j][k]; 
+                    }
+                    P[i][j] += FuQT[i][j]; 
+                }
+            }
         
             publishOdometry(x, y, alpha, v, omega, current_time);
             last_update_time_ = current_time;
@@ -80,12 +122,12 @@ private:
         odom_msg.twist.twist.linear.x = vx;
         odom_msg.twist.twist.linear.y = vy;
         odom_msg.twist.twist.angular.z = omega;
-        odom_msg.pose.covariance = {Pk[0][0], Pk[0][1], 0, 0, 0, Pk[0][2],
-                            Pk[1][0], Pk[1][1], 0, 0, 0, Pk[1][2],
+        odom_msg.pose.covariance = {P[0][0], P[0][1], 0, 0, 0, P[0][2],
+                            P[1][0], P[1][1], 0, 0, 0, P[1][2],
                             0, 0, 0, 0, 0, 0,
                             0, 0, 0, 0, 0, 0,
                             0, 0, 0, 0, 0, 0,
-                            Pk[2][0], Pk[2][1], 0, 0, 0, Pk[2][2]};
+                            P[2][0], P[2][1], 0, 0, 0, P[2][2]};
         odom_pub.publish(odom_msg);
         
         transformStamped.header.stamp = current_time;

@@ -72,11 +72,11 @@ class OdometryErrorCalculator:
 
         plt.tight_layout()
         plt.savefig('odometry_error_plot.png')
-        plt.show()
+        # plt.show()
 
-        # Save errors to file
-        np.savetxt('odometry_position_errors.csv', position_errors, delimiter=',')
-        np.savetxt('odometry_angular_errors.csv', angular_errors, delimiter=',')
+        # # Save errors to file
+        # np.savetxt('odometry_position_errors.csv', position_errors, delimiter=',')
+        # np.savetxt('odometry_angular_errors.csv', angular_errors, delimiter=',')
 
 if __name__ == '__main__':
     calculator = OdometryErrorCalculator()
