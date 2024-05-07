@@ -73,14 +73,14 @@ class CustomCNN(nn.Module):
         x = self.pool5(F.leaky_relu(self.bn5(self.conv5(x)), negative_slope=0.01))
         x = self.pool6(F.leaky_relu(self.bn6(self.conv6(x)), negative_slope=0.01))
         x = self.pool7(F.leaky_relu(self.bn7(self.conv7(x)), negative_slope=0.01))
+        
         return x
 
     def _set_num_flat_features(self):
-        # Recalculate the number of flat features
         dummy_input = torch.zeros(1, 18, 448, 448)
         output = self._forward_features(dummy_input)
-        self._num_flat_features = int(output.nelement() / output.shape[0])
-        # Dynamically set the in_features for fc1
+        self._num_flat_features = int(output.nelement() / output.shape[0])  # Ensure this is an int
+        # Dynamically set the in_features for fc1 based on the calculated number of flat features
         self.fc1 = nn.Linear(self._num_flat_features, 4096)
 
 
@@ -143,24 +143,58 @@ def plot_on_map(image_file, resolution, origin, predicted, ground_truth, ground_
     ax.legend()
     plt.show()
 
+def load_images_and_gt(image_dir, gt_dir):
+    images = sorted([os.path.join(image_dir, f) for f in os.listdir(image_dir) if f.endswith('.npy')])
+    ground_truths = sorted([os.path.join(gt_dir, f) for f in os.listdir(gt_dir) if f.endswith('.json')])
+    return images, ground_truths
+
+def compute_error(predicted, ground_truth):
+    # Compute Euclidean distance between predicted and ground truth positions
+    return np.linalg.norm(predicted[:2] - ground_truth[:2])
+
+def plot_error_map(image_file, resolution, origin, errors, positions, cmap='hot'):
+    img = plt.imread(image_file)
+    fig, ax = plt.subplots()
+    ax.imshow(img, cmap='gray', origin='lower')
+    
+    # Convert position errors to pixel coordinates on the map
+    pixels = [((pos[:2] - origin[:2]) / resolution).astype(int) for pos in positions]
+    error_values = [err for err in errors]
+    
+    # Scatter plot of errors
+    sc = ax.scatter([p[0] for p in pixels], [p[1] for p in pixels], c=error_values, cmap=cmap, marker='o')
+    plt.colorbar(sc, label='Position error (meters)')
+    plt.show()
+
+
+# Paths configuration
+image_dir = "/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data1scan/test/multi_channel_images"
+gt_dir = "/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data1scan/test/gt_poses"
+map_yaml_path = "/home/emin/bag_files/map.yaml"
 # Load model
-model = load_model("/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/models/8th/cnn_pose_estimatorNewOcc_noPar.pth")
+model = load_model("/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/models/scan1.pth")
 
-# Preprocess the image
-image = preprocess_image("/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data_newOccupancy/test/multi_channel_images/20240321-105650.npy")
-
-# Predict the position using the model
-predicted_position = predict_position(model, image)
-print('predicted_position ', predicted_position)
-# Load the ground truth
-ground_truth_position, ground_truth_orientation = load_ground_truth("/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data_newOccupancy/test/gt_poses/20240321-105650.json")
-print('gt Position:  ', ground_truth_position)
-# Load map parameters from the YAML file
-with open("/home/emin/Downloads/map.yaml", 'r') as f:
+# Load map parameters
+with open(map_yaml_path, 'r') as f:
     map_params = yaml.safe_load(f)
 image_file = os.path.join(os.path.dirname(f.name), map_params['image'])
 resolution = map_params['resolution']
 origin = map_params['origin']
 
-# Plot the predicted and ground truth positions on the map
-plot_on_map(image_file, resolution, np.array(origin), predicted_position, ground_truth_position, ground_truth_orientation)
+# Load and process each image and ground truth
+images, ground_truths = load_images_and_gt(image_dir, gt_dir)
+errors = []
+positions = []
+
+for image_path, gt_path in zip(images, ground_truths):
+    image = preprocess_image(image_path)
+    predicted_position = predict_position(model, image)
+    gt_position, gt_orientation = load_ground_truth(gt_path)
+    
+    error = compute_error(predicted_position, gt_position)
+    if error <0.5:
+        errors.append(error)
+        positions.append(gt_position)
+
+# Plot the error distribution on the map
+plot_error_map(image_file, resolution, origin, errors, positions)

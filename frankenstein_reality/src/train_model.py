@@ -38,6 +38,12 @@ class CustomCNN(nn.Module):
         self.bn6 = nn.BatchNorm2d(128)
         self.pool6 = nn.MaxPool2d(2, 2)
 
+        self.conv7 = nn.Conv2d(128, 128, kernel_size=3, padding=1)
+        self.bn7 = nn.BatchNorm2d(128)
+        self.pool7 = nn.MaxPool2d(2, 2)
+
+        
+
         # Placeholder for the number of input features to the first fully connected layer
         self._num_flat_features = None
 
@@ -69,6 +75,7 @@ class CustomCNN(nn.Module):
         x = self.pool4(F.leaky_relu(self.bn4(self.conv4(x)), negative_slope=0.01))
         x = self.pool5(F.leaky_relu(self.bn5(self.conv5(x)), negative_slope=0.01))
         x = self.pool6(F.leaky_relu(self.bn6(self.conv6(x)), negative_slope=0.01))
+        x = self.pool7(F.leaky_relu(self.bn7(self.conv7(x)), negative_slope=0.01))
         return x
 
     def _set_num_flat_features(self):
@@ -157,8 +164,8 @@ class EarlyStopping:
             self.counter = 0
         return self.early_stop
     
-def custom_loss(output, target, beta=1.0, pose_beta=1.0):
-    position_loss = torch.norm(output[:, :2] - target[:, :2], dim=1).mean()
+def custom_loss(output, target, beta=1.0, pose_beta=1.0, batch_size=10):
+    position_loss = (torch.norm(output[:, :2] - target[:, :2], dim=1).mean()) 
     orientation_error = output[:, 2] - target[:, 2]
     orientation_error = torch.where(
         orientation_error > np.pi, orientation_error - 2 * np.pi, orientation_error
@@ -166,13 +173,13 @@ def custom_loss(output, target, beta=1.0, pose_beta=1.0):
     orientation_error = torch.where(
         orientation_error < -np.pi, orientation_error + 2 * np.pi, orientation_error
     )
-    orientation_loss = (orientation_error ** 2).mean()
+    orientation_loss = (orientation_error ** 2).mean() 
     total_loss =  position_loss * pose_beta + beta * orientation_loss
     return total_loss, position_loss, orientation_loss
 
 
     
-def evaluate_model(model, test_loader, beta=1.0, pose_beta=1.0):
+def evaluate_model(model, test_loader, beta=1.0, pose_beta=1.0, batch_size=10):
     model.eval()  # Set model to evaluation mode
     test_position_loss = 0.0
     test_orientation_loss = 0.0
@@ -181,7 +188,7 @@ def evaluate_model(model, test_loader, beta=1.0, pose_beta=1.0):
             inputs = data['image'].to(device)
             labels = data['pose'].to(device)
             outputs = model(inputs)
-            _, position_loss, orientation_loss = custom_loss(outputs, labels, beta, pose_beta)
+            _, position_loss, orientation_loss = custom_loss(outputs, labels, beta, pose_beta, batch_size)
             test_position_loss += position_loss.item()
             test_orientation_loss += orientation_loss.item()
     
@@ -194,7 +201,7 @@ def evaluate_model(model, test_loader, beta=1.0, pose_beta=1.0):
     print(f'Test Orientation Loss (degrees): {avg_test_orientation_loss_degrees:.2f}')
 
 
-def train_model(model, train_loader, val_loader, optimizer, scheduler, num_epochs=25, beta=1.0, pose_beta=1.0):
+def train_model(model, train_loader, val_loader, optimizer, scheduler, num_epochs=25, beta=1.0, pose_beta=1.0, batch_size=10):
     early_stopping = EarlyStopping(patience=10, verbose=True)
     
     for epoch in range(num_epochs):
@@ -207,7 +214,7 @@ def train_model(model, train_loader, val_loader, optimizer, scheduler, num_epoch
 
             optimizer.zero_grad()
             outputs = model(inputs)
-            loss, position_loss, orientation_loss = custom_loss(outputs, labels, beta, pose_beta)
+            loss, position_loss, orientation_loss = custom_loss(outputs, labels, beta, pose_beta, batch_size)
             loss.backward()
             optimizer.step()
             running_position_loss += position_loss.item()
@@ -227,7 +234,7 @@ def train_model(model, train_loader, val_loader, optimizer, scheduler, num_epoch
                 inputs = data['image'].to(device)
                 labels = data['pose'].to(device)
                 outputs = model(inputs)
-                loss, position_loss, orientation_loss = custom_loss(outputs, labels, beta)
+                loss, position_loss, orientation_loss = custom_loss(outputs, labels, beta, batch_size)
                 val_position_loss += position_loss.item()
                 val_orientation_loss += orientation_loss.item()
 
@@ -254,28 +261,28 @@ def train_model(model, train_loader, val_loader, optimizer, scheduler, num_epoch
 
 
 
-beta_value = 5 
-pose_beta_value = 2
-number_of_epochs = 100
+beta_value = 2.5 
+pose_beta_value = 1
+number_of_epochs = 150
 learning_rate = 1e-4
 batchSize = 10
-evaluationMode = False
+evaluationMode = True
 
 # Initialize the Dataset and DataLoader
 train_dataset = LidarPoseDataset(
-    root_dir='/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data3/train',
+    root_dir='/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data1scan/train',
     transform=ToTensor()
 )
 train_loader = DataLoader(train_dataset, batch_size=batchSize, shuffle=True)
 
 val_dataset = LidarPoseDataset(
-    root_dir='/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data3/val',
+    root_dir='/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data1scan/val',
     transform=ToTensor()
 )
 val_loader = DataLoader(val_dataset, batch_size=batchSize, shuffle=True)
 
 test_dataset = LidarPoseDataset(
-    root_dir='/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data3/test',
+    root_dir='/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data1scan/test',
     transform=ToTensor()
 )
 test_loader = DataLoader(test_dataset, batch_size=batchSize, shuffle=False)  # Usually, we don't shuffle test data
@@ -296,10 +303,10 @@ if evaluationMode==False:
     # Training loop with early stopping and separate loss reporting
 
     # Run the training loop
-    train_model(model, train_loader, val_loader, optimizer, scheduler, num_epochs=number_of_epochs, beta=beta_value, pose_beta=pose_beta_value)
+    train_model(model, train_loader, val_loader, optimizer, scheduler, num_epochs=number_of_epochs, beta=beta_value, pose_beta=pose_beta_value, batch_size=batchSize)
 
     # Save the trained model
-    torch.save(model.state_dict(), '/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/models/cnn_pose_estimator3.pth')
+    torch.save(model.state_dict(), '/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/models/scan1.pth')
 
     
 
@@ -312,12 +319,12 @@ else:
     model = CustomCNN().to(device)
 
     # Load the trained model parameters
-    model.load_state_dict(torch.load('/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/models/cnn_pose_estimator3.pth', map_location=device))
+    model.load_state_dict(torch.load('/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/models/scan1.pth', map_location=device))
 
     # Ensure the model is in evaluation mode
     model.eval()
 
-    evaluate_model(model, test_loader, beta=beta_value, pose_beta=pose_beta_value)
+    evaluate_model(model, test_loader, beta=beta_value, pose_beta=pose_beta_value, batch_size=batchSize)
 
 
 

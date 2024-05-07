@@ -371,10 +371,8 @@ def train_model(model, train_loader, val_loader, optimizer, scheduler, num_epoch
 
 
 
-
-
 orientation_beta_value = 5 
-pose_beta_value = 2
+pose_beta_value = 3
 parking_beta_value = 1
 number_of_epochs = 100
 learning_rate = 1e-4
@@ -383,19 +381,19 @@ evaluationMode = True
 
 # Initialize the Dataset and DataLoader
 train_dataset = LidarPoseDataset(
-    root_dir='/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data3/train_parking',
+    root_dir='/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data_glass/train',
     transform=ToTensor()
 )
 train_loader = DataLoader(train_dataset, batch_size=batchSize, shuffle=True)
 
 val_dataset = LidarPoseDataset(
-    root_dir='/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data3/val_parking',
+    root_dir='/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data_glass/val',
     transform=ToTensor()
 )
 val_loader = DataLoader(val_dataset, batch_size=batchSize, shuffle=True)
 
 test_dataset = LidarPoseDataset(
-    root_dir='/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data3/test_parking',
+    root_dir='/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/data_glass/test',
     transform=ToTensor()
 )
 test_loader = DataLoader(test_dataset, batch_size=batchSize, shuffle=False)  # Usually, we don't shuffle test data
@@ -419,7 +417,7 @@ if evaluationMode==False:
     train_model(model, train_loader, val_loader, optimizer, scheduler, num_epochs=number_of_epochs, orientation_beta=orientation_beta_value, pose_beta=pose_beta_value, parking_beta=parking_beta_value)
 
     # Save the trained model
-    torch.save(model.state_dict(), '/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/models/cnn_pose_estimatorParking.pth')
+    torch.save(model.state_dict(), '/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/models/glass.pth')
 
     
 
@@ -432,7 +430,7 @@ else:
     model = CustomCNN().to(device)
 
     # Load the trained model parameters
-    model.load_state_dict(torch.load('/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/models/cnn_pose_estimatorParking.pth', map_location=device))
+    model.load_state_dict(torch.load('/home/emin/catkin_ws/src/frankenstein/frankenstein_reality/models/glass.pth', map_location=device))
 
     # Ensure the model is in evaluation mode
     model.eval()
