@@ -5,6 +5,9 @@ from sklearn.metrics import confusion_matrix
 import seaborn as sns
 
 
+base_directory = '/home/aminedhemaied/Thesis/results/map15'
+
+
 
 def find_corners_by_color(image_path, color_threshold):
     # Load the image in color
@@ -94,8 +97,8 @@ def calculate_confusion_matrix(ground_truth, slam_map, threshold=128):
 
 
 # Load the images with corners
-ground_truth_path = '/home/aminedhemaied/Thesis/results/map/ground_truth_map_with_corners.png'
-slam_map_path = '/home/aminedhemaied/Thesis/results/map/transformed_slam_map_with_corners.png'
+ground_truth_path = f"{base_directory}/ground_truth_map_with_corners.png"
+slam_map_path = f"{base_directory}/transformed_slam_map_with_corners.png"
 ground_truth_with_corners = cv2.imread(ground_truth_path)
 slam_map_with_corners = cv2.imread(slam_map_path)
 
@@ -117,8 +120,8 @@ else:
 
 
     # Save the filtered images
-    cv2.imwrite('/home/aminedhemaied/Thesis/results/map/filtered_ground_truth.png', masked_gt)
-    cv2.imwrite('/home/aminedhemaied/Thesis/results/map/filtered_slam_map.png', masked_slam)
+    cv2.imwrite(f"{base_directory}/filtered_ground_truth.png", masked_gt)
+    cv2.imwrite(f"{base_directory}/filtered_slam_map.png", masked_slam)
 
     # Display the filtered images
     plt.figure(figsize=(10, 5))

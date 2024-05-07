@@ -9,7 +9,7 @@
   <param name="robot_description" command="$(find xacro)/xacro $(find frankenstein_description)/urdf/frankenstein.urdf"/>
   <node name="robot_state_publisher" pkg="robot_state_publisher"
     type="robot_state_publisher" />
-
+    
   <node pkg="frankenstein_reality" type="visualizer_node_reality" name="path_visualizer" />
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find frankenstein_description)/rviz/frankenstein_reality.rviz">
     </node>

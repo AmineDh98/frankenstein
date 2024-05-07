@@ -19,6 +19,7 @@
   <!-- <node pkg="frankenstein_reality" type="visualizer_node_reality" name="path_visualizer" /> -->
   <node pkg="frankenstein_reality" type="scan_filter_node" name="scan_filter_node" />
   
+  <node pkg="frankenstein_reality" type="glass_filter.py" name="lidar_glass_filter" />
 
   
   <!-- <node name="cartographer_launcher" pkg="frankenstein_reality" type="cartographer_launcher.sh" output="screen"/> -->
