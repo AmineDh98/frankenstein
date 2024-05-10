@@ -20,15 +20,23 @@ class LiDARGlassFilter:
 
         self.occupancy_grid = np.zeros((self.image_size, self.image_size, 3), dtype=np.uint8)
 
-
+        self.occupancy_grid2 = np.zeros((self.image_size, self.image_size, 3), dtype=np.uint8)
 
         # Set up the matplotlib figure and axes, based on image_size
         self.fig, self.ax = plt.subplots(figsize=(12, 12), dpi=100)
         
         self.im = self.ax.imshow(self.occupancy_grid)
 
+        # Set up the matplotlib figure and axes, based on image_size
+        self.fig2, self.ax2 = plt.subplots(figsize=(12, 12), dpi=100)
+        
+        self.im2 = self.ax2.imshow(self.occupancy_grid2)
+
         # Start the animation loop
         self.ani = FuncAnimation(self.fig, self.update_plot, interval=50)
+
+        # Start the animation loop
+        self.ani2 = FuncAnimation(self.fig2, self.update_plot2, interval=50)
         
         self.pub_glass = rospy.Publisher('/glass_cloud', PointCloud2, queue_size=10)
         self.pub_filtered = rospy.Publisher('/f_cloud', PointCloud2, queue_size=10)
@@ -38,6 +46,11 @@ class LiDARGlassFilter:
     def update_plot(self, frame):
         # Update the image displayed on the plot
         self.im.set_data(self.occupancy_grid)
+    
+    def update_plot2(self, frame):
+        # Update the image displayed on the plot
+        self.im2.set_data(self.occupancy_grid2)
+
         return self.im,
 
     def scan_callback(self, msg):
@@ -99,13 +112,13 @@ class LiDARGlassFilter:
  
     
     def cloud_callback(self, cloud_msg):
-        ranges, intensities, angles = self.extract_ranges_intensities_angles(cloud_msg)
-        glass_indices, non_glass_indices, updated_ranges, intensities = self.detect_glass(ranges, intensities)
+        ranges2, intensities, angles = self.extract_ranges_intensities_angles(cloud_msg)
+        glass_indices, non_glass_indices, updated_ranges, intensities = self.detect_glass(ranges2, intensities)
         glass_cloud_msg = self.create_cloud(cloud_msg, glass_indices, updated_ranges, intensities)
         filtered_cloud_msg = self.create_cloud(cloud_msg, non_glass_indices, updated_ranges, intensities)
         self.pub_glass.publish(glass_cloud_msg)
         self.pub_filtered.publish(filtered_cloud_msg)
-        self.generate_images_and_live_plot(angles, updated_ranges, glass_indices)
+        self.generate_images_and_live_plot(angles, updated_ranges, glass_indices, ranges2)
 
     def create_cloud(self, cloud_msg, indices, ranges, intensities):
         header = std_msgs.msg.Header()
@@ -155,8 +168,9 @@ class LiDARGlassFilter:
             angles.append(angle)
         return np.array(ranges), np.array(intensities), np.array(angles)
 
-    def generate_images_and_live_plot(self, angles, ranges, glass_indices):
+    def generate_images_and_live_plot(self, angles, ranges, glass_indices, ranges2):
         self.occupancy_grid.fill(128)  # Reset the grid to a gray background
+        self.occupancy_grid2.fill(128)
         robot_x, robot_y = self.image_size // 2, self.image_size // 2
 
         for idx, (angle, distance) in enumerate(zip(angles, ranges)):
@@ -166,6 +180,8 @@ class LiDARGlassFilter:
             x = int(robot_x + (distance * np.cos(angle)) * self.image_size / (2 * self.max_range))
             y = int(robot_y + (distance * np.sin(angle)) * self.image_size / (2 * self.max_range))
 
+            
+
             if 0 <= x < self.image_size and 0 <= y < self.image_size:
                 
                 if idx in glass_indices:
@@ -173,6 +189,14 @@ class LiDARGlassFilter:
                 else:
                     color = (0, 255, 0)  # Green for non-glass indices
                 self.occupancy_grid[x, y] = color  # Plot point as a colored pixel
+
+        for idx, (angle, distance) in enumerate(zip(angles, self.scan)):
+            x2 = int(robot_x + (distance * np.cos(angle)) * self.image_size / (2 * self.max_range))
+            y2 = int(robot_y + (distance * np.sin(angle)) * self.image_size / (2 * self.max_range))
+
+            if 0 <= x2 < self.image_size and 0 <= y2 < self.image_size:
+                self.occupancy_grid2[x2, y2] = (0, 0, 0)  # Plot point as a colored pixel
+
 
 
 

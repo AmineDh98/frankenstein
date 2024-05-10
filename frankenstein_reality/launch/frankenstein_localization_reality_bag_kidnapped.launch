@@ -17,6 +17,6 @@
   <node name="cartographer_localization_bag_launcher" pkg="frankenstein_reality" type="cartographer_localization_bag_kidnapped_launcher.sh" args="$(arg map_file) $(arg bag_file)" output="screen"/>
   <!-- <node pkg="frankenstein_reality"  type="image_generator.py" name="laser_scan_processor" /> -->
   
-  <node pkg="frankenstein_reality"  type="initialPose_finder.py" name="laser_scan_processor" />
+  <node pkg="frankenstein_reality"  type="initialPose_finder_glass.py" name="laser_scan_processor" />
 
 </launch>

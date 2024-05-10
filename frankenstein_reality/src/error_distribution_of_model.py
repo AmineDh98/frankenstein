@@ -47,7 +47,7 @@ class CustomCNN(nn.Module):
         self.fc1 = nn.Linear(128 * 14 * 14, 4096)  # Placeholder value, will be dynamically set
         self.fc2 = nn.Linear(4096, 1024)
         self.fc3 = nn.Linear(1024, 512)
-        self.fc4 = nn.Linear(512, 3)  # Output layer for 3-DOF pose
+        self.fc4 = nn.Linear(512, 4)  # Output layer for 3-DOF pose
         
         # Dummy input to set _num_flat_features
         self._set_num_flat_features()
@@ -168,11 +168,11 @@ def plot_error_map(image_file, resolution, origin, errors, positions, cmap='hot'
 
 
 # Paths configuration
-image_dir = "/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data3/multi_channel_images"
-gt_dir = "/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data3/gt_poses"
-map_yaml_path = "/home/aminedhemaied/bagfiles/light_bags/best1/map.yaml"
+image_dir = "/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data_glass/multi_channel_images"
+gt_dir = "/home/aminedhemaied/catkin_ws/src/frankenstein/frankenstein_reality/data_glass/gt_poses"
+map_yaml_path = "/home/aminedhemaied/bagfiles/map15/map15.yaml"
 # Load model
-model = load_model("/home/aminedhemaied/Downloads/models/8th/cnn_pose_estimatorNewOcc_noPar.pth")
+model = load_model("/home/aminedhemaied/Downloads/models/glass1.pth")
 
 # Load map parameters
 with open(map_yaml_path, 'r') as f:

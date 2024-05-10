@@ -57,7 +57,7 @@ def pixel_to_world(pixel_coordinates, resolution, origin, image_height):
 
 
 # Function to draw corners on the image
-def draw_corners(image, corners, color=(100, 55, 250), radius=10, thickness=-1):
+def draw_corners(image, corners, color=(100, 55, 250), radius=30, thickness=-1):
     for corner in corners:
         cv2.circle(image, (int(corner[0]), int(corner[1])), radius, color, thickness)
     return image
