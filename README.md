@@ -100,9 +100,23 @@ roslaunch frankenstein_gazebo frankenstein_localization_gazebo.launch load_state
 ```
 
 
-To do mapping on real robot run:
+To do online mapping on real robot run:
 ```
 roslaunch frankenstein_reality frankenstein_reality.launch
+```
+To save the map before ending the online mapping, run the following commands:
+```
+rosservice call /finish_trajectory 0
+rosservice call /write_state "{filename: '/path/to/your/file.pbstream'}"
+rosrun cartographer_ros cartographer_pbstream_to_ros_map -map_filestem=/path/to/your/file.pbstream -pbstream_filename=/path/to/your/file.pbstream -resolution=0.05
+```
+
+
+To run offline mapping on real robot run:
+```
+cd path/to/cartographer_ws
+source install_isolated/setup.bash
+roslaunch cartographer_ros offline_frankenstein_reality.launch bag_filenames:=path/to/bagfile
 ```
 
 To do pure localization on real robot run:
@@ -110,9 +124,13 @@ To do pure localization on real robot run:
 roslaunch frankenstein_reality frankenstein_localozation_reality.launch map_file:=/path/to/your/file.pbstream
 ```
 
-To save the map before ending the mapping, run the following commands:
+To train the CNN model you run [this file](frankenstein_reality/src/train_model.py) (change the data path before)
+
+
+
+
+To run localization using deep learning model (CHANGE THE PATH OF THE mode.pth in [this file](frankenstein_reality/src/initialPose_finder_glass.py) )
+
 ```
-rosservice call /finish_trajectory 0
-rosservice call /write_state "{filename: '/path/to/your/file.pbstream'}"
-rosrun cartographer_ros cartographer_pbstream_to_ros_map -map_filestem=/path/to/your/file.pbstream -pbstream_filename=/path/to/your/file.pbstream -resolution=0.05
+roslaunch frankenstein_reality frankenstein_localization_reality_bag_kidnapped.launch bag_file:=path/to/bagfile.bag map_file:=path/to/mapfile.pbstream
 ```
