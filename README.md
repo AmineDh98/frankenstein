@@ -77,6 +77,18 @@ The robot model is created in urdf:
     <img src="images/model.jpg" height="500" alt="Your image description">
 </p>
 
+<table>
+  <tr>
+    <td>
+      <img src="images/cnn.gif" alt="CNN Model Visualization" style="width:100%">
+      <p style="text-align:center;">Deep learning based localization</p>
+    </td>
+    <td>
+      <img src="images/carto.gif" alt="Cartographer SLAM Process" style="width:100%">
+      <p style="text-align:center;">Cartographer based localization</p>
+    </td>
+  </tr>
+</table>
 
 
 # How to run the project

@@ -4,6 +4,9 @@
 
   <arg name="map_file" default="${HOME}/bagfiles/map5/map5.pbstream" />
   <arg name="bag_file" default="${HOME}/bagfiles/map.bag" />
+  <arg name="model_path" default="${HOME}/Downloads/models/glass1.pth" />
+
+  <!-- <node pkg="frankenstein_reality"  type="glass_filter.py" name="lidar_glass_filter" /> -->
 
 
   <param name="robot_description" command="$(find xacro)/xacro $(find frankenstein_description)/urdf/frankenstein.urdf"/>
@@ -17,6 +20,8 @@
   <node name="cartographer_localization_bag_launcher" pkg="frankenstein_reality" type="cartographer_localization_bag_kidnapped_launcher.sh" args="$(arg map_file) $(arg bag_file)" output="screen"/>
   <!-- <node pkg="frankenstein_reality"  type="image_generator.py" name="laser_scan_processor" /> -->
   
-  <node pkg="frankenstein_reality"  type="initialPose_finder_glass.py" name="laser_scan_processor" />
+    <node pkg="frankenstein_reality" type="initialPose_finder_glass.py" name="laser_scan_processor">
+      <param name="model_path" value="$(arg model_path)" />
+    </node>
 
 </launch>

@@ -344,9 +344,9 @@ class LaserScanProcessor:
         non_glass_indices = np.where(isGlass == 0)[0]
         return glass_indices, non_glass_indices, ranges
 
-def load_model():
+def load_model(model_path):
     model = CustomCNN()
-    model.load_state_dict(torch.load('/home/aminedhemaied/Downloads/models/glass1.pth', map_location='cpu'))
+    model.load_state_dict(torch.load(model_path, map_location='cpu'))
     model.eval()
     return model
 
@@ -354,7 +354,11 @@ def load_model():
 
 if __name__ == '__main__':
     rospy.init_node('laser_scan_processor', anonymous=True)
-    model = load_model()
+
+    # Get the model path from ROS parameter server
+    model_path = rospy.get_param('~model_path', '/home/aminedhemaied/Downloads/models/glass1.pth')  # Default path as fallback
+    model = load_model(model_path)
+
     sender = PoseSender()
     lsp = LaserScanProcessor(model, sender)
     
