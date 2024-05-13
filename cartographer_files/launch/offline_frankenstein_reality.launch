@@ -25,7 +25,9 @@
 
     <remap from="scan" to="/scan" />
     <remap from="odom" to="/odom" />
-    <remap from="points2" to="/cloud" />
+    <!-- <remap from="points2" to="/cloud" /> -->
+    <remap from="points2" to="/f_cloud" />
+
   <include file="$(find cartographer_ros)/launch/offline_node.launch">
     <arg name="bag_filenames" value="$(arg bag_filenames)"/>
     <arg name="no_rviz" value="$(arg no_rviz)"/>
@@ -35,6 +37,7 @@
     <arg name="urdf_filenames" value="$(arg urdf_filenames)"/>
     <arg name="launch_prefix" value="$(arg launch_prefix)"/>
   </include>
+  
 
    <node pkg="frankenstein_reality" type="visualizer_node_reality" name="path_visualizer" />
 </launch>

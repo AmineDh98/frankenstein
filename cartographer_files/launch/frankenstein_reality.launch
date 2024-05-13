@@ -23,8 +23,8 @@
       output="screen">
     <remap from="scan" to="/scan" />
     <remap from="odom" to="/odom" />
-    <remap from="points2" to="/cloud" />
-    <!-- <remap from="points2" to="/filtered_cloud" /> -->
+    <!-- <remap from="points2" to="/cloud" /> -->
+    <remap from="points2" to="/f_cloud" />
 
 
     

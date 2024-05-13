@@ -17,15 +17,17 @@
 
 include "frankenstein_reality.lua"
 
+TRAJECTORY_BUILDER_2D.max_range = 50
+TRAJECTORY_BUILDER_2D.missing_data_ray_length = 50.0 --5.0
 TRAJECTORY_BUILDER.pure_localization_trimmer = {
   max_submaps_to_keep = 3,
 }
 
 POSE_GRAPH.optimize_every_n_nodes = 10
--- POSE_GRAPH.constraint_builder.global_localization_min_score = 0.25 --0.6
--- MAP_BUILDER.num_background_threads = 10--4
-POSE_GRAPH.global_sampling_ratio =0.001 --0.003
-POSE_GRAPH.constraint_builder.sampling_ratio= 0.1 --0.3
+POSE_GRAPH.constraint_builder.global_localization_min_score = 0.45 --0.6
+MAP_BUILDER.num_background_threads = 8--4
+POSE_GRAPH.global_sampling_ratio =0.002 --0.003
+POSE_GRAPH.constraint_builder.sampling_ratio= 0.2 --0.3
 POSE_GRAPH.global_constraint_search_after_n_seconds = 10. --10.
 POSE_GRAPH.constraint_builder.max_constraint_distance = 15.0 --15.0
 POSE_GRAPH.constraint_builder.min_score= 0.55 --0.55

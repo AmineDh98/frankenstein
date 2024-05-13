@@ -28,15 +28,16 @@
       output="screen">
     <remap from="scan" to="/scan" />
     <remap from="odom" to="/odom" />
-    <remap from="points2" to="/cloud" />
+    <!-- <remap from="points2" to="/cloud" /> -->
+    <remap from="points2" to="/f_cloud" />
 
   </node>
 
   <node name="cartographer_occupancy_grid_node" pkg="cartographer_ros"
-      type="cartographer_occupancy_grid_node" args="-resolution 0.08" />
+      type="cartographer_occupancy_grid_node" args="-resolution 0.05" />
 
   <!-- <node name="rviz" pkg="rviz" type="rviz" required="true"
       args="-d $(find cartographer_ros)/configuration_files/frankenstein.rviz" /> -->
-  <node name="playbag" pkg="rosbag" type="play" launch-prefix="bash -c 'sleep 30; $0 $@'"
+  <node name="playbag" pkg="rosbag" type="play" launch-prefix="bash -c 'sleep 2; $0 $@'"
       args="--clock $(arg bag_filename)" />
 </launch>

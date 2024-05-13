@@ -24,11 +24,12 @@
       output="screen">
     <remap from="scan" to="/scan" />
     <remap from="odom" to="/odom" />
-    <remap from="points2" to="/cloud" />
+    <!-- <remap from="points2" to="/cloud" /> -->
+    <remap from="points2" to="/f_cloud" />
   </node>
 
   <node name="cartographer_occupancy_grid_node" pkg="cartographer_ros"
-      type="cartographer_occupancy_grid_node" args="-resolution 0.08" />
+      type="cartographer_occupancy_grid_node" args="-resolution 0.05" />
 
 </launch>
 

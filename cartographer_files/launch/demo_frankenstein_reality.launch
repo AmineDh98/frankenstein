@@ -21,7 +21,7 @@
 
   <!-- <node name="rviz" pkg="rviz" type="rviz" required="true"
       args="-d $(find cartographer_ros)/configuration_files/frankenstein.rviz" /> -->
-  <node name="playbag" pkg="rosbag" type="play" launch-prefix="bash -c 'sleep 1; $0 $@'"
+  <node name="playbag" pkg="rosbag" type="play" launch-prefix="bash -c 'sleep 5; $0 $@'"
       args="--clock $(arg bag_filename)" />
 
 </launch>

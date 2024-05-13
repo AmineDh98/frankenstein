@@ -22,11 +22,64 @@ It includes:
 </p>
 
 
+# Robot Description
+**Frankenstein** is a prototype robot developed by TAVIL for testing purposes. The robot is considered a tricycle robot even though it technically has 4 wheels, and the reason is that the 4th wheel is free and it plays the role of a
+caster, the front right wheel is the only controllable wheel and the 2 back wheels
+are there for keeping balance and play a role in determining the rotation centre
+point while rotating. The robot has 2 2D security LIDARs responsible mainly for
+detecting the obstacles while moving. On the top of the AGV, there is another 2D
+LIDAR responsible for mapping and localization and this will be used during the project work.
+
+<p align="center">
+    <img src="images/agv_real.png" height="500" alt="Your image description">
+</p>
+
+## Robot Geometry:
+
+<p align="center">
+    <img src="images/measures.png" height="200" alt="Your image description">
+</p>
+
+## Robot URDF
+
+The robot model is created in urdf:
+
+<p align="center">
+    <img src="images/urdf.png" height="200" alt="Your image description">
+</p>
 
 
 
+## Integration with ROS
 
-AGV robot model in Gazebo with Cartographer SLAM implemented
+<p align="center">
+    <img src="images/integration.jpg" height="500" alt="Your image description">
+</p>
+
+# Results
+
+## Mapping
+
+![Demo](images/mapping.gif)
+
+## Glass detection
+
+<p align="center">
+    <img src="images/diff.png" height="300" alt="Your image description">
+</p>
+
+## Pure localization
+
+
+### CNN Model
+
+<p align="center">
+    <img src="images/model.jpg" height="500" alt="Your image description">
+</p>
+
+
+
+# How to run the project
 
 To do mapping on Gazebo simulation run:
 ```

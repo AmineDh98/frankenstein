@@ -30,7 +30,7 @@ options = {
   use_landmarks = false,
   num_laser_scans = 0,
   num_multi_echo_laser_scans = 0,
-  num_subdivisions_per_laser_scan = 10,
+  num_subdivisions_per_laser_scan = 1,
   num_point_clouds = 1,
   lookup_transform_timeout_sec = 0.2,
   submap_publish_period_sec = 0.3,
@@ -46,15 +46,14 @@ options = {
 }
 
 MAP_BUILDER.use_trajectory_builder_2d = true
-
-TRAJECTORY_BUILDER_2D.num_accumulated_range_data = 20 --1
-TRAJECTORY_BUILDER_2D.use_imu_data = false
-TRAJECTORY_BUILDER_2D.max_range = 200
-TRAJECTORY_BUILDER_2D.min_range = 0.5
-TRAJECTORY_BUILDER_2D.missing_data_ray_length = 200.0 --5.0
-TRAJECTORY_BUILDER_2D.min_z =1.0
-TRAJECTORY_BUILDER_2D.max_z =5.0
 MAP_BUILDER.num_background_threads = 8--4
+TRAJECTORY_BUILDER_2D.num_accumulated_range_data = 1 --1
+TRAJECTORY_BUILDER_2D.use_imu_data = false
+TRAJECTORY_BUILDER_2D.max_range = 50
+TRAJECTORY_BUILDER_2D.min_range = 0.5
+TRAJECTORY_BUILDER_2D.missing_data_ray_length = 50.0 --5.0
+TRAJECTORY_BUILDER_2D.min_z =1.
+TRAJECTORY_BUILDER_2D.max_z =5.
 TRAJECTORY_BUILDER_2D.voxel_filter_size = 0.025 --0.025
 TRAJECTORY_BUILDER_2D.ceres_scan_matcher.occupied_space_weight=1.0 --1.0
 TRAJECTORY_BUILDER_2D.ceres_scan_matcher.translation_weight = 2e2 --10.0
@@ -64,7 +63,8 @@ TRAJECTORY_BUILDER_2D.submaps.grid_options_2d.resolution = 0.05 --0.05
 TRAJECTORY_BUILDER_2D.submaps.num_range_data = 40 --90
 
 TRAJECTORY_BUILDER_2D.use_online_correlative_scan_matching = true
-
+-- TRAJECTORY_BUILDER_2D.real_time_correlative_scan_matcher.translation_delta_cost_weight = 1e1-- 1e-1
+-- TRAJECTORY_BUILDER_2D.real_time_correlative_scan_matcher.rotation_delta_cost_weight = 0.1e-1-- 1e-1
 
 
 TRAJECTORY_BUILDER_2D.adaptive_voxel_filter = {
@@ -80,7 +80,7 @@ TRAJECTORY_BUILDER_2D.loop_closure_adaptive_voxel_filter = {
 }
 
 
-POSE_GRAPH.optimize_every_n_nodes = 90 --90
+POSE_GRAPH.optimize_every_n_nodes = 100 --90
 
 
 POSE_GRAPH.optimization_problem.odometry_translation_weight = 1e3 --1e5
@@ -96,13 +96,13 @@ POSE_GRAPH.matcher_rotation_weight = 1.6e3--1.6e3
 
 
 
-POSE_GRAPH.global_sampling_ratio =0.0025 --0.003
+POSE_GRAPH.global_sampling_ratio =0.003 --0.003
 POSE_GRAPH.constraint_builder.max_constraint_distance = 15.0 --15.0
-POSE_GRAPH.constraint_builder.sampling_ratio= 0.25 --0.3
-POSE_GRAPH.constraint_builder.min_score= 0.45 --0.55
+POSE_GRAPH.constraint_builder.sampling_ratio= 0.3 --0.3
+POSE_GRAPH.constraint_builder.min_score= 0.48 --0.55
 
 
-POSE_GRAPH.global_constraint_search_after_n_seconds = 10.0 --10.
+POSE_GRAPH.global_constraint_search_after_n_seconds = 5.0 --10.
 
 POSE_GRAPH.optimization_problem.huber_scale = 1e1 --1e1
 
