@@ -81,6 +81,14 @@ The robot model is created in urdf:
 
 # How to run the project
 
+
+## Cartographer installation
+
+To install cartographer follow the instructions in the following 
+[link](https://google-cartographer-ros.readthedocs.io/en/latest/compilation.html) 
+
+Then follow this [link](https://github.com/cartographer-project/cartographer_ros/issues/1726)  to validate your data and rosbag.
+
 To do mapping on Gazebo simulation run:
 ```
 roslaunch frankenstein_gazebo frankenstein_gazebo.launch
