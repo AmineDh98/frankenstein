@@ -5,7 +5,7 @@ from sklearn.metrics import confusion_matrix
 import seaborn as sns
 
 
-base_directory = '/home/aminedhemaied/Thesis/results/map15'
+base_directory = '/home/aminedhemaied/Thesis/results/map'
 
 
 

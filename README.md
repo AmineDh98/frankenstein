@@ -74,6 +74,10 @@ The robot model is created in urdf:
 ### CNN Model
 
 <p align="center">
+    <img src="images/1lidar.jpg" height="500" alt="Your image description">
+</p>
+
+<p align="center">
     <img src="images/model.jpg" height="500" alt="Your image description">
 </p>
 
@@ -141,8 +145,8 @@ To train the CNN model you run [this file](frankenstein_reality/src/train_model.
 
 
 
-To run localization using deep learning model (CHANGE THE PATH OF THE mode.pth in [this file](frankenstein_reality/src/initialPose_finder_glass.py) )
+To run localization using deep learning model 
 
 ```
-roslaunch frankenstein_reality frankenstein_localization_reality_bag_kidnapped.launch bag_file:=path/to/bagfile.bag map_file:=path/to/mapfile.pbstream
+roslaunch frankenstein_reality frankenstein_localization_reality_bag_kidnapped.launch bag_file:=path/to/bagfile.bag map_file:=path/to/mapfile.pbstream model_path:=/path/to/model.pth
 ```
