@@ -1,5 +1,24 @@
 # Introduction
 This repository is to be deployed on the Frankenstein AGV which is a prototype AGV robot developed by Tavil.
+
+# Table of Contents
+- [Introduction](#introduction)
+- [Objective](#objective)
+- [Task](#task)
+- [Created by](#created-by)
+- [Project architecture](#project-architecture)
+- [Robot Description](#robot-description)
+  - [Robot Geometry](#robot-geometry)
+  - [Robot URDF](#robot-urdf)
+- [Integration with ROS](#integration-with-ros)
+- [Results](#results)
+  - [Mapping](#mapping)
+  - [Glass detection](#glass-detection)
+  - [Pure localization](#pure-localization)
+    - [CNN Model](#cnn-model)
+- [How to run the project](#how-to-run-the-project)
+  - [Cartographer installation](#cartographer-installation)
+
 # Objective
 The main objective of this project is to replace the PLC module with a ROS module that can perform the mapping and localization task. ROS will offer more flexibility and customization to the implemented system, allowing for the integration of a wide range of sensors and hardware components.
 The PLC module output will be used as a ground truth to be compared to the implemented SLAM results for testing and evaluation purposes. 
@@ -23,16 +42,13 @@ It includes:
 
 
 # Robot Description
-**Frankenstein** is a prototype robot developed by TAVIL for testing purposes. The robot is considered a tricycle robot even though it technically has 4 wheels, and the reason is that the 4th wheel is free and it plays the role of a
+The robot is considered a tricycle robot even though it technically has 4 wheels, and the reason is that the 4th wheel is free and it plays the role of a
 caster, the front right wheel is the only controllable wheel and the 2 back wheels
 are there for keeping balance and play a role in determining the rotation centre
 point while rotating. The robot has 2 2D security LIDARs responsible mainly for
 detecting the obstacles while moving. On the top of the AGV, there is another 2D
 LIDAR responsible for mapping and localization and this will be used during the project work.
 
-<p align="center">
-    <img src="images/agv_real.png" height="500" alt="Your image description">
-</p>
 
 ## Robot Geometry:
 
